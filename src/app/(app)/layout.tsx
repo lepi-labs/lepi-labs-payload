@@ -4,13 +4,28 @@ import { AdminBar } from '@/components/AdminBar'
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { ensureStartsWith } from '@/utilities/ensureStartsWith'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
-import { GeistSans } from 'geist/font/sans'
-import { GeistMono } from 'geist/font/mono'
-import React from 'react'
+import { Fira_Mono, Fira_Sans, Saira_Semi_Condensed } from 'next/font/google'
 import './globals.css'
+
+const FiraSans = Fira_Sans({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-sans',
+})
+
+const FiraMono = Fira_Mono({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-mono',
+})
+
+const SairaSans = Saira_Semi_Condensed({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-sans',
+})
 
 /* const { SITE_NAME, TWITTER_CREATOR, TWITTER_SITE } = process.env
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
@@ -42,7 +57,7 @@ const twitterSite = TWITTER_SITE ? ensureStartsWith(TWITTER_SITE, 'https://') : 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
-      className={[GeistSans.variable, GeistMono.variable].filter(Boolean).join(' ')}
+      className={[SairaSans.variable, FiraMono.variable].filter(Boolean).join(' ')}
       lang="en"
       suppressHydrationWarning
     >

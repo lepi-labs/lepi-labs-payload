@@ -16,7 +16,7 @@ import { useAuth } from '@/providers/Auth'
 import { MenuIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface Props {
   menu: Header['navItems']
@@ -96,7 +96,7 @@ export function MobileMenu({ menu }: Props) {
             <h2 className="text-xl mb-4">My account</h2>
             <div className="flex items-center gap-2 mt-4">
               <Button asChild className="w-full" variant="outline">
-                <Link href="/login">Log in</Link>
+                <Link href="/login">Login</Link>
               </Button>
               <span>or</span>
               <Button asChild className="w-full">

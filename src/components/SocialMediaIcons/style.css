@@ -1,0 +1,17 @@
+.socialsvg path {
+  fill: var(--color-neutral-500);
+  transition: fill 0.25s;
+}
+
+.socialsvg a:hover path {
+  fill: black;
+}
+
+[data-theme="dark"] .socialsvg path {
+  fill: var(--color-neutral-500);
+  transition: fill 0.25s;
+}
+
+[data-theme="dark"] .socialsvg a:hover path {
+  fill: white;
+}
