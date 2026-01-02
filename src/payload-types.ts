@@ -484,6 +484,7 @@ export interface Page {
     | ThreeItemGridBlock
     | BannerBlock
     | FormBlock
+    | WideCarouselBlock
   )[];
   meta?: {
     title?: string | null;
@@ -875,6 +876,36 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WideCarouselBlock".
+ */
+export interface WideCarouselBlock {
+  cardHeight: number;
+  cards: {
+    background?: (string | null) | Media;
+    text?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    link: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'widecarousel';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "variants".
  */
 export interface Variant {
@@ -1225,6 +1256,7 @@ export interface PagesSelect<T extends boolean = true> {
         threeItemGrid?: T | ThreeItemGridBlockSelect<T>;
         banner?: T | BannerBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        widecarousel?: T | WideCarouselBlockSelect<T>;
       };
   meta?:
     | T
@@ -1354,6 +1386,23 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WideCarouselBlock_select".
+ */
+export interface WideCarouselBlockSelect<T extends boolean = true> {
+  cardHeight?: T;
+  cards?:
+    | T
+    | {
+        background?: T;
+        text?: T;
+        link?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
