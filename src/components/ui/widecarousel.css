@@ -1,0 +1,7 @@
+[data-theme="light"] button.slick-arrow::before {
+  color: black;
+}
+
+[data-theme="dark"] .slick-dots li button::before {
+  color: white;
+}

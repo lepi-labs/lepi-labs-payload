@@ -882,6 +882,7 @@ export interface WideCarouselBlock {
   cardHeight: number;
   cards: {
     background?: (string | null) | Media;
+    mobileBackgroundOverride?: (string | null) | Media;
     text?: {
       root: {
         type: string;
@@ -897,7 +898,8 @@ export interface WideCarouselBlock {
       };
       [k: string]: unknown;
     } | null;
-    link: string;
+    textBackgroundColor: string;
+    textBorderColor: string;
     id?: string | null;
   }[];
   id?: string | null;
@@ -1399,8 +1401,10 @@ export interface WideCarouselBlockSelect<T extends boolean = true> {
     | T
     | {
         background?: T;
+        mobileBackgroundOverride?: T;
         text?: T;
-        link?: T;
+        textBackgroundColor?: T;
+        textBorderColor?: T;
         id?: T;
       };
   id?: T;

@@ -25,16 +25,27 @@ export const WideCarousel: Block = {
           label: 'Background'
         },
         {
+          name: 'mobileBackgroundOverride',
+          type: 'upload',
+          relationTo: 'media',
+        },
+        {
           name: 'text',
           type: 'richText',
           label: 'Text',
           editor: lexicalEditor({})
         },
         {
-          name: 'link',
+          name: 'textBackgroundColor',
           type: 'text',
-          label: 'Link',
-          required: true
+          required: true,
+          defaultValue: '#000000ff'
+        },
+        {
+          name: 'textBorderColor',
+          type: 'text',
+          required: true,
+          defaultValue: '#ffffffff'
         }
       ]
     }

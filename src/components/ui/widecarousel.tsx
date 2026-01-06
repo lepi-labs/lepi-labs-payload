@@ -1,7 +1,7 @@
 'use client'
 
 import type { Media, WideCarouselBlock as WideCarouselProps } from '@/payload-types'
-import NextImage from 'next/image'
+import { getImageProps } from 'next/image'
 import type { Settings as SliderSettings } from 'react-slick'
 import Slider from 'react-slick'
 
@@ -9,26 +9,62 @@ import 'slick-carousel/slick/slick-theme.css'
 import 'slick-carousel/slick/slick.css'
 import { RichText } from '../RichText'
 
-function WideCarouselCard(props: {
-  media: Media,
-  richText: any,
-  cardHeight: number
-}) {
-  const src = `${process.env.NEXT_PUBLIC_SERVER_URL}${props.media.url}`
+import './widecarousel.css'
+
+function WideCarouselCard(props: WideCarouselProps['cards'][number] & { cardHeight: number }) {
+
+  if (!props.background || typeof props.background !== 'object') {
+    throw new Error(`props.background was not an object: ${props.background}`)
+  }
+  const background = props.background
+  if (props.mobileBackgroundOverride && typeof props.mobileBackgroundOverride !== 'object') {
+    throw new Error(`props.mobileBackgroundOverride was provided but was not an object: ${props.mobileBackgroundOverride}`)
+  }
+  const mobileBackground = props.mobileBackgroundOverride as Media | null | undefined
+
+  const commonImgProps = {
+    sizes: '100vw',
+    fill: true,
+    objectFit: 'cover'
+  }
+  const {
+    props: { srcSet: desktop },
+  } = getImageProps({
+    ...commonImgProps,
+    src: background.url || '',
+    alt: background.alt
+  })
+  const {
+    props: { srcSet: mobile, ...rest }
+  } = getImageProps({
+    ...commonImgProps,
+    src: (mobileBackground ? mobileBackground.url : background.url) || '',
+    alt: mobileBackground ? mobileBackground.alt : background.alt
+  })
 
   return (
     <div
       className="relative m-4 rounded-[0.8rem] overflow-hidden"
       style={{ minHeight: `calc(var(--spacing) * ${props.cardHeight})`}}
     >
-      <NextImage
-        src={src}
-        alt={props.media.alt}
-        fill={true} objectFit="cover"
-      />
-      <div className="absolute bottom-0 left-0 m-10">
-        <RichText data={props.richText} />
-      </div>
+      <picture>
+        <source media="(min-aspect-ratio: 1/1)" srcSet={desktop} />
+        <source media="(min-width: 500px)" srcSet={mobile} />
+        {/* eslint-disable-next-line jsx-a11y/alt-text */}
+        <img {...rest} />
+      </picture>
+
+      {props.text ? 
+      <div
+        className="absolute bottom-0 left-0 border-2 p-5 m-5 rounded-[0.8rem]"
+        style={{
+          backgroundColor: props.textBackgroundColor,
+          borderColor: props.textBorderColor
+        }}
+      >
+        <RichText data={props.text} />
+      </div> : <></>
+      }
     </div>
   )
 }
@@ -50,8 +86,7 @@ export function WideCarousel(props: WideCarouselProps) {
         return (
           <div key={card.id}>
             <WideCarouselCard
-              media={card.background as Media}
-              richText={card.text}
+              {...card}
               cardHeight={props.cardHeight}
             />
           </div>
