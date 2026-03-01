@@ -4,14 +4,14 @@
 }
 
 .socialsvg a:hover path {
-  fill: black;
+  fill: var(--graphite);
 }
 
 [data-theme="dark"] .socialsvg path {
-  fill: var(--color-neutral-500);
+  fill: var(--peach-glow);
   transition: fill 0.25s;
 }
 
 [data-theme="dark"] .socialsvg a:hover path {
-  fill: white;
+  fill: var(--dark-orange);
 }

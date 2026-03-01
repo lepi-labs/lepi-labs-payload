@@ -62,7 +62,7 @@ function WideCarouselCard(props: WideCarouselProps['cards'][number] & { cardHeig
           borderColor: props.textBorderColor
         }}
       >
-        <RichText data={props.text} />
+        <RichText className="carousel-richtext" data={props.text} />
       </div> : <></>
       }
     </div>

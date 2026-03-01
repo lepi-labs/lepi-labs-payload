@@ -35,8 +35,15 @@
 }
 
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(222.2 84% 4.9%);
+  /* lepi labs color palette */
+  --dark-orange: #ff9640;
+  --peach-glow: #ffc08d;
+  --lavender-purple: #8b6bb3;
+  --white: #ffffff;
+  --graphite: #363636;
+
+  --background: var(--white);
+  --foreground: var(--white);
 
   --card: hsl(240 5% 96%);
   --card-foreground: hsl(222.2 84% 4.9%);
@@ -45,21 +52,21 @@
   --popover-foreground: hsl(222.2 84% 4.9%);
 
   --primary: hsl(222.2 47.4% 11.2%);
-  --primary-foreground: hsl(210 40% 98%);
+  --primary-foreground: var(--white);
 
-  --secondary: hsl(210 40% 96.1%);
+  --secondary: var(--lavender-purple);
   --secondary-foreground: hsl(222.2 47.4% 11.2%);
 
   --muted: hsl(210 40% 96.1%);
   --muted-foreground: hsl(215.4 16.3% 46.9%);
 
-  --accent: hsl(210 40% 96.1%);
+  --accent: var(--lavender-purple);
   --accent-foreground: hsl(222.2 47.4% 11.2%);
 
   --destructive: hsl(0 84.2% 60.2%);
   --destructive-foreground: hsl(210 40% 98%);
 
-  --border: hsl(240 6% 90%);
+  --border: var(--lavender-purple);
   --input: hsl(214.3 31.8% 91.4%);
   --ring: hsl(222.2 84% 4.9%);
 
@@ -71,7 +78,7 @@
 }
 
 [data-theme='dark'] {
-  --background: hsla(0, 0%, 4%);
+  --background: var(--graphite);
   --foreground: hsl(210 40% 98%);
 
   --card: hsl(0, 0%, 8%);

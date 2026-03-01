@@ -9,9 +9,11 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background-color: var(--primary);
+    background-color: var(--primary-foreground);
     transition: transform 0.3s;
   }
+
+  color: var(--primary-foreground);
 
   &:not(.active) {
     &:hover {
@@ -24,6 +26,26 @@
   &.active {
     &::after {
       transform: translateY(-2px);
+    }
+  }
+}
+
+.header-container {
+  background-color: var(--dark-orange);
+}
+
+[data-theme="dark"] {
+  .header-container {
+    background-color: var(--graphite);
+    box-shadow: 0px 5px 10px var(--dark-orange);
+    color: var(--dark-orange);
+  }
+
+  .navLink {
+    color: var(--white);
+
+    &::after {
+      background-color: var(--white);
     }
   }
 }

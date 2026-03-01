@@ -1,7 +1,16 @@
-[data-theme="light"] button.slick-arrow::before {
+.carousel-richtext,
+.carousel-richtext h1,
+.carousel-richtext a {
+  color: white;
+}
+
+button.slick-arrow::before {
   color: black;
 }
 
-[data-theme="dark"] .slick-dots li button::before {
-  color: white;
+[data-theme="dark"]  {
+ .slick-dots li button::before,
+ button.slick-arrow::before {
+    color: white;
+ }
 }
