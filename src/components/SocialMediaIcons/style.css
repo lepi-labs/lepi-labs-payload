@@ -7,11 +7,12 @@
   fill: var(--graphite);
 }
 
-[data-theme="dark"] .socialsvg path {
-  fill: var(--peach-glow);
-  transition: fill 0.25s;
-}
+[data-theme="dark"] {
+  .socialsvg path {
+    fill: var(--color-neutral-300);
+  }
 
-[data-theme="dark"] .socialsvg a:hover path {
-  fill: var(--dark-orange);
+  .socialsvg a:hover path {
+    fill: var(--white);
+  }
 }

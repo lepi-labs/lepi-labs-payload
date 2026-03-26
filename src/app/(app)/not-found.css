@@ -1,0 +1,11 @@
+.container > div > h1,
+.container > div > p {
+  color: var(--graphite);
+}
+
+[data-theme="dark"] {
+  .container > div > h1,
+  .container > div > p {
+    color: var(--white);
+  }
+}

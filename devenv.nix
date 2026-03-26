@@ -12,6 +12,13 @@
 
   # https://devenv.sh/services/
   services.mongodb.enable = true;
+  tasks."mongodb:restore" = {
+    exec = ''mongorestore --drop'';
+  };
+  #tasks."mongodb:dump" = {
+  #  exec = ''mongodump'';
+  #  after = [ "devenv:processes:mongodb" ];
+  #};
 
   # https://devenv.sh/tests/
 

@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import React from 'react'
+
+import './not-found.css'
 
 import { Button } from '@/components/ui/button'
 
