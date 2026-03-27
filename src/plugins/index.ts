@@ -3,6 +3,7 @@ import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { Plugin } from 'payload'
 
 import { stripeAdapter } from '@payloadcms/plugin-ecommerce/payments/stripe'
@@ -26,7 +27,36 @@ const generateURL: GenerateURL<Product | Page> = ({ doc }) => {
   return doc?.slug ? `${url}/${doc.slug}` : url
 }
 
+const s3Enabled = process.env.S3_ENABLED === 'true'
+const s3Valid = process.env.S3_BUCKET &&
+  process.env.S3_ENDPOINT &&
+  process.env.S3_ACCESS_KEY_ID &&
+  process.env.S3_SECRET_ACCESS_KEY &&
+  process.env.S3_REGION
+
+if (s3Enabled && !s3Valid) {
+  throw new Error('S3 storage is enabled, but one or more required environment variables are missing. Please check your .env file.')
+}
+if (!s3Enabled && s3Valid) {
+  console.warn('S3 storage is configured but not enabled. To enable S3 storage, set S3_ENABLED=true in your .env file.')
+}
 export const plugins: Plugin[] = [
+  s3Storage({
+    enabled: s3Enabled,
+    // disableLocalStorage: !s3Enabled,
+    collections: {
+      media: true
+    },
+    bucket: process.env.S3_BUCKET || '',
+    config: {
+      endpoint: process.env.S3_ENDPOINT || '',
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+      },
+      region: process.env.S3_REGION || '',
+    },
+  }),
   seoPlugin({
     generateTitle,
     generateURL,
