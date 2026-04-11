@@ -36,7 +36,7 @@ export function HeaderClient({ header }: Props) {
         <div className="flex w-full items-end justify-between">
           <div className="flex w-full items-end gap-3 md:w-1/2">
             <Link className="flex w-full items-center justify-center pt-4 pb-4 md:w-auto" href="/">
-              <p className={orbitron.className + ' text-2xl pr-3'}><b>lepi labs</b></p>
+              <p className={orbitron.className + ' text-2xl pr-3 logo-text'}><b>lepi labs</b></p>
             </Link>
             {menu.length ? (
               <ul className="hidden gap-4 text-sm md:flex md:items-center">

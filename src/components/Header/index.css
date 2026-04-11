@@ -34,6 +34,10 @@
   background-color: var(--dark-orange);
 }
 
+.logo-text {
+  color: var(--white);
+}
+
 [data-theme="dark"] {
   .header-container {
     background-color: var(--graphite);
@@ -47,5 +51,9 @@
     &::after {
       background-color: var(--white);
     }
+  }
+
+  .logo-text {
+    color: var(--dark-orange);
   }
 }

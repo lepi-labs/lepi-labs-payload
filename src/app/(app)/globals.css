@@ -43,7 +43,7 @@
   --graphite: #363636;
 
   --background: var(--white);
-  --foreground: var(--white);
+  --foreground: black;
 
   --card: hsl(240 5% 96%);
   --card-foreground: hsl(222.2 84% 4.9%);
