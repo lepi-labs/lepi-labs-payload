@@ -7,6 +7,7 @@ import { s3Storage } from '@payloadcms/storage-s3'
 import { Plugin } from 'payload'
 
 import { stripeAdapter } from '@payloadcms/plugin-ecommerce/payments/stripe'
+import { stripePlugin } from '@payloadcms/plugin-stripe'
 
 import { adminOnlyFieldAccess } from '@/access/adminOnlyFieldAccess'
 import { adminOrPublishedStatus } from '@/access/adminOrPublishedStatus'
@@ -94,6 +95,45 @@ export const plugins: Plugin[] = [
         })
       },
     },
+  }),
+  stripePlugin({
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY!,
+    stripeWebhooksEndpointSecret: process.env.STRIPE_WEBHOOKS_SIGNING_SECRET!,
+    webhooks: {
+      // webhook handlers are defined here
+    },
+    sync: [
+      {
+        collection: 'products',
+        stripeResourceType: 'products',
+        stripeResourceTypeSingular: 'product',
+        fields: [
+          {
+            fieldPath: 'title',
+            stripeProperty: 'name',
+          },
+          {
+            fieldPath: 'description',
+            stripeProperty: 'description',
+          },
+        ],
+      },
+      {
+        collection: 'users',
+        stripeResourceType: 'customers',
+        stripeResourceTypeSingular: 'customer',
+        fields: [
+          {
+            fieldPath: 'email',
+            stripeProperty: 'email',
+          },
+          {
+            fieldPath: 'name',
+            stripeProperty: 'name',
+          },
+        ],
+      },
+    ]
   }),
   ecommercePlugin({
     access: {
