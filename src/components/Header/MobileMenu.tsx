@@ -94,11 +94,10 @@ export function MobileMenu({ menu }: Props) {
         ) : (
           <div>
             <h2 className="text-xl mb-4">My account</h2>
-            <div className="flex items-center gap-2 mt-4">
+            <div className="flex flex-col items-center gap-2 mt-4">
               <Button asChild className="w-full" variant="outline">
                 <Link href="/login">Login</Link>
               </Button>
-              <span>or</span>
               <Button asChild className="w-full">
                 <Link href="/create-account">Create an account</Link>
               </Button>
