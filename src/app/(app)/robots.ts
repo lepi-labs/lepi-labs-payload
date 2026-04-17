@@ -1,7 +1,7 @@
-/* eslint-disable no-restricted-exports */
+ 
 const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
   ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-  : 'http://localhost:3000'
+  : process.env.PAYLOAD_PUBLIC_SERVER_URL
 
 export default function robots() {
   return {

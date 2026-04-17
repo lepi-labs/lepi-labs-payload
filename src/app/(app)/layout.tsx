@@ -65,6 +65,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+        {Boolean(process.env.UMAMI_WEBSITE_ID) &&
+          <script defer src="https://cloud.umami.is/script.js" data-website-id={process.env.UMAMI_WEBSITE_ID}></script>}
       </head>
       <body>
         <Providers>
