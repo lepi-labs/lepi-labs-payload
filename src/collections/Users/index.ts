@@ -2,8 +2,8 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { adminOnlyFieldAccess } from '@/access/adminOnlyFieldAccess'
-import { publicAccess } from '@/access/publicAccess'
 import { adminOrSelf } from '@/access/adminOrSelf'
+import { publicAccess } from '@/access/publicAccess'
 import { checkRole } from '@/access/utilities'
 
 import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
@@ -24,6 +24,26 @@ export const Users: CollectionConfig = {
   },
   auth: {
     tokenExpiration: 1209600,
+    forgotPassword: {
+      generateEmailHTML: ({ req, token, user }) => {
+        const resetPasswordURL = `${process.env.PAYLOAD_PUBLIC_SERVER_URL}/admin/reset/${token}`
+
+        return `
+          <!doctype html>
+          <html>
+            <body>
+              <h1>Reset your password for Lepi Labs</h1>
+              <p>Hello, ${user.name}!</p>
+              <p>Click below to reset your password.</p>
+              <p>
+                <a href="${resetPasswordURL}">${resetPasswordURL}</a>
+              </p>
+              <p>If you didn't request this email, you can ignore it. Thanks!</p>
+            </body>
+          </html>
+        `
+      }
+    }
   },
   fields: [
     {

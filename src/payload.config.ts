@@ -21,6 +21,7 @@ import { Pages } from '@/collections/Pages'
 import { Users } from '@/collections/Users'
 import { Footer } from '@/globals/Footer'
 import { Header } from '@/globals/Header'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { SocialMediaLinks } from './globals/SocialMediaLink'
 import { plugins } from './plugins'
 
@@ -78,7 +79,21 @@ export default buildConfig({
       ]
     },
   }),
-  //email: nodemailerAdapter(),
+  email: nodemailerAdapter({
+    defaultFromAddress: 'noreply@lepi-labs.com',
+    defaultFromName: 'Lepi Labs',
+    transportOptions: {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    }
+  }),
+  cors: {
+    origins: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''],
+  },
   endpoints: [],
   globals: [Header, Footer, SocialMediaLinks],
   plugins,
