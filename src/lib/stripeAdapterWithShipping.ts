@@ -1,5 +1,5 @@
 import { Cart } from "@/payload-types";
-import getStripe from "@/utilities/getStripe";
+import type { ShippingRateJSON } from "@/types/shipping";
 import { stripeAdapter } from "@payloadcms/plugin-ecommerce/payments/stripe";
 import { PaymentAdapter } from "@payloadcms/plugin-ecommerce/types";
 import { InitiatePaymentReturnType } from "node_modules/@payloadcms/plugin-ecommerce/dist/payments/adapters/stripe";
@@ -28,18 +28,19 @@ export const stripeAdapterWithShipping: PaymentAdapter = {
       overrideAccess: true,
     }) as Cart
 
-    const shippingRateStr = cart.shippingRate
-    if (!shippingRateStr) {
+    const shippingRate = cart.shippingRate as ShippingRateJSON | null
+    if (!shippingRate) {
       throw new Error(`Tried to create a payment intent for cart ${cart.id} with no shipping rate set.`)
     }
-    const shippingRateId = shippingRateStr.replace('stripe:', '')
-    const stripe = getStripe(req.payload)
-    if (!stripe) {
-      throw new Error('Unable to load Stripe')
+
+    if (shippingRate.provider !== 'stripe') {
+      throw new Error(`Unsupported shipping rate provider: ${shippingRate.provider}`)
     }
-    const rate = (await stripe.shippingRates.retrieve(shippingRateId)).fixed_amount?.amount
-    if (!rate) {
-      throw new Error(`Tried to get shipping rate ${shippingRateId} but had no amount.`)
+
+    // Cost is already stored in the shipping rate object (captured at selection time)
+    const rate = shippingRate.cost
+    if (typeof rate !== 'number' || rate < 0) {
+      throw new Error(`Invalid shipping rate cost: ${rate}`)
     }
     const cartWithShipping = {
       ...cart,
