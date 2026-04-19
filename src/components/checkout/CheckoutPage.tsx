@@ -12,7 +12,7 @@ import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import React, { Suspense, useCallback, useEffect, useState } from 'react'
+import React, { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { AddressItem } from '@/components/addresses/AddressItem'
 import { CreateAddressModal } from '@/components/addresses/CreateAddressModal'
@@ -22,6 +22,7 @@ import { FormItem } from '@/components/forms/FormItem'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cssVariables } from '@/cssVariables'
+import getShippingRates, { ShippingRate } from '@/endpoints/shipping-rates'
 import { Address } from '@/payload-types'
 import { useAddresses, useCart, usePayments } from '@payloadcms/plugin-ecommerce/client/react'
 import { toast } from 'sonner'
@@ -46,12 +47,14 @@ export const CheckoutPage: React.FC = () => {
   const [shippingAddress, setShippingAddress] = useState<Partial<Address>>()
   const [billingAddress, setBillingAddress] = useState<Partial<Address>>()
   const [billingAddressSameAsShipping, setBillingAddressSameAsShipping] = useState(true)
+  const [shippingRates, setShippingRates] = useState<ShippingRate[] | null>([])
+  const [selectedShippingRate, setSelectedShippingRate] = useState<ShippingRate | null>(null)
   const [isProcessingPayment, setProcessingPayment] = useState(false)
 
   const cartIsEmpty = !cart || !cart.items || !cart.items.length
 
   const canGoToPayment = Boolean(
-    (email || user) && billingAddress && (billingAddressSameAsShipping || shippingAddress),
+    (email || user) && billingAddress && (billingAddressSameAsShipping || shippingAddress) && selectedShippingRate,
   )
 
   // On initial load wait for addresses to be loaded and check to see if we can prefill a default one
@@ -64,7 +67,18 @@ export const CheckoutPage: React.FC = () => {
         }
       }
     }
-  }, [addresses])
+  }, [addresses, shippingAddress])
+
+  useEffect(() => {
+    getShippingRates().then((rates) => {
+      setShippingRates(rates)
+    })
+  }, [])
+
+  const total = useMemo(
+    () => (cart?.subtotal || 0) + (selectedShippingRate?.price || 0),
+    [cart?.subtotal, selectedShippingRate?.price]
+  )
 
   useEffect(() => {
     return () => {
@@ -102,7 +116,7 @@ export const CheckoutPage: React.FC = () => {
         toast.error(errorMessage)
       }
     },
-    [billingAddress, billingAddressSameAsShipping, shippingAddress],
+    [billingAddress, billingAddressSameAsShipping, email, shippingAddress],
   )
 
   if (!stripe) return null
@@ -269,6 +283,27 @@ export const CheckoutPage: React.FC = () => {
           </>
         )}
 
+        <h2 className="font-medium text-3xl">Shipping</h2>
+        {!shippingRates && <p>Sorry, there was an error fetching shipping rates.</p>}
+        {shippingRates &&
+          <div>
+            {shippingRates.map(r => (
+              <div key={'shippingrate-' + r.name}>
+                <input
+                  type="radio" 
+                  value={r.name}
+                  name='shippingRate'
+                  checked={selectedShippingRate === r}
+                  onChange={() => {
+                    setSelectedShippingRate(r)
+                  }}
+                />
+                <label className="ml-2" onClick={() => { setSelectedShippingRate(r) }}>{r.name} - <Price className="inline" amount={r.price} />, {r.minBusinessDays}-{r.maxBusinessDays} business days</label>
+              </div>
+            ))}
+          </div>
+        }
+
         {!paymentData && (
           <Button
             className="self-start"
@@ -430,8 +465,16 @@ export const CheckoutPage: React.FC = () => {
           })}
           <hr />
           <div className="flex justify-between items-center gap-2">
-            <span className="uppercase">Total</span>{' '}
-            <Price className="text-3xl font-medium" amount={cart.subtotal || 0} />
+            <span className="text-md">Subtotal</span>{' '}
+            <Price className="font-medium" amount={cart.subtotal || 0} />
+          </div>
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-md">Shipping</span>{' '}
+            <Price className="font-medium" amount={selectedShippingRate?.price || 0} />
+          </div>
+          <div className="flex justify-between items-center gap-2">
+            <span className="uppercase text-lg">Total</span>{' '}
+            <Price className="text-3xl font-medium" amount={total} />
           </div>
         </div>
       )}
