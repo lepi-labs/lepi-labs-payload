@@ -14,7 +14,9 @@ import { customerOnlyFieldAccess } from '@/access/customerOnlyFieldAccess'
 import { isAdmin } from '@/access/isAdmin'
 import { isDocumentOwner } from '@/access/isDocumentOwner'
 import { CartsCollection } from '@/collections/Carts'
+import { OrdersCollection } from '@/collections/Orders'
 import { ProductsCollection } from '@/collections/Products'
+import { TransactionsCollection } from '@/collections/Transactions'
 import { stripeAdapterWithShipping } from '@/lib/stripeAdapterWithShipping'
 import { Page, Product } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -162,6 +164,12 @@ export const plugins: Plugin[] = [
     },
     carts: {
       cartsCollectionOverride: CartsCollection
+    },
+    orders: {
+      ordersCollectionOverride: OrdersCollection
+    },
+    transactions: {
+      transactionsCollectionOverride: TransactionsCollection
     }
   }),
 ]
