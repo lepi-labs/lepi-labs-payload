@@ -22,7 +22,8 @@ import { FormItem } from '@/components/forms/FormItem'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cssVariables } from '@/cssVariables'
-import getShippingRates, { ShippingRate } from '@/endpoints/shipping-rates'
+import getShippingRates, { StripeShippingRate } from '@/endpoints/shipping-rates'
+import setCartShippingRate from '@/lib/setCartShippingRate'
 import { Address } from '@/payload-types'
 import { useAddresses, useCart, usePayments } from '@payloadcms/plugin-ecommerce/client/react'
 import { toast } from 'sonner'
@@ -47,8 +48,8 @@ export const CheckoutPage: React.FC = () => {
   const [shippingAddress, setShippingAddress] = useState<Partial<Address>>()
   const [billingAddress, setBillingAddress] = useState<Partial<Address>>()
   const [billingAddressSameAsShipping, setBillingAddressSameAsShipping] = useState(true)
-  const [shippingRates, setShippingRates] = useState<ShippingRate[] | null>([])
-  const [selectedShippingRate, setSelectedShippingRate] = useState<ShippingRate | null>(null)
+  const [shippingRates, setShippingRates] = useState<StripeShippingRate[] | null>([])
+  const [selectedShippingRate, setSelectedShippingRate] = useState<StripeShippingRate | null>(null)
   const [isProcessingPayment, setProcessingPayment] = useState(false)
 
   const cartIsEmpty = !cart || !cart.items || !cart.items.length
@@ -89,6 +90,13 @@ export const CheckoutPage: React.FC = () => {
       setEmailEditable(true)
     }
   }, [])
+
+  const updateSelectedShippingRate = useCallback((newRate: StripeShippingRate) => {
+    if (cart && newRate) {
+      setSelectedShippingRate(newRate)
+      setCartShippingRate(cart.id, newRate.id)
+    }
+  }, [cart])
 
   const initiatePaymentIntent = useCallback(
     async (paymentID: string) => {
@@ -295,10 +303,10 @@ export const CheckoutPage: React.FC = () => {
                   name='shippingRate'
                   checked={selectedShippingRate === r}
                   onChange={() => {
-                    setSelectedShippingRate(r)
+                    updateSelectedShippingRate(r)
                   }}
                 />
-                <label className="ml-2" onClick={() => { setSelectedShippingRate(r) }}>{r.name} - <Price className="inline" amount={r.price} />, {r.minBusinessDays}-{r.maxBusinessDays} business days</label>
+                <label className="ml-2" onClick={() => { updateSelectedShippingRate(r) }}>{r.name} - <Price className="inline" amount={r.price} />, {r.minBusinessDays}-{r.maxBusinessDays} business days</label>
               </div>
             ))}
           </div>

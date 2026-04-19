@@ -4,14 +4,15 @@ import getStripe from "@/utilities/getStripe"
 import config from '@payload-config'
 import { getPayload } from "payload"
 
-export interface ShippingRate {
+export interface StripeShippingRate {
+  id: string,
   name: string,
   price: number,
   minBusinessDays?: number,
   maxBusinessDays?: number
 }
 
-export default async function getShippingRates(): Promise<ShippingRate[] | null> {
+export default async function getShippingRates(): Promise<StripeShippingRate[] | null> {
   const payload = await getPayload({ config })
 
   const stripe = getStripe(payload)
@@ -22,6 +23,7 @@ export default async function getShippingRates(): Promise<ShippingRate[] | null>
   const stripeRates = await stripe.shippingRates.list({ active: true })
   return stripeRates.data.map(r => {
     return {
+      id: r.id,
       name: r.display_name!,
       price: r.fixed_amount!.amount,
       minBusinessDays: r.delivery_estimate?.minimum?.value,

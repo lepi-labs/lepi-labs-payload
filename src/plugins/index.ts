@@ -6,7 +6,6 @@ import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/
 import { s3Storage } from '@payloadcms/storage-s3'
 import { Plugin } from 'payload'
 
-import { stripeAdapter } from '@payloadcms/plugin-ecommerce/payments/stripe'
 import { stripePlugin } from '@payloadcms/plugin-stripe'
 
 import { adminOnlyFieldAccess } from '@/access/adminOnlyFieldAccess'
@@ -14,7 +13,9 @@ import { adminOrPublishedStatus } from '@/access/adminOrPublishedStatus'
 import { customerOnlyFieldAccess } from '@/access/customerOnlyFieldAccess'
 import { isAdmin } from '@/access/isAdmin'
 import { isDocumentOwner } from '@/access/isDocumentOwner'
+import { CartsCollection } from '@/collections/Carts'
 import { ProductsCollection } from '@/collections/Products'
+import { stripeAdapterWithShipping } from '@/lib/stripeAdapterWithShipping'
 import { Page, Product } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
@@ -148,15 +149,19 @@ export const plugins: Plugin[] = [
     },
     payments: {
       paymentMethods: [
-        stripeAdapter({
-          secretKey: process.env.STRIPE_SECRET_KEY!,
-          publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
-          webhookSecret: process.env.STRIPE_WEBHOOKS_SIGNING_SECRET!,
-        }),
+        // stripeAdapter({
+        //   secretKey: process.env.STRIPE_SECRET_KEY!,
+        //   publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!,
+        //   webhookSecret: process.env.STRIPE_WEBHOOKS_SIGNING_SECRET!,
+        // }),
+        stripeAdapterWithShipping
       ],
     },
     products: {
       productsCollectionOverride: ProductsCollection,
     },
+    carts: {
+      cartsCollectionOverride: CartsCollection
+    }
   }),
 ]

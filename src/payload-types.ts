@@ -992,6 +992,7 @@ export interface Cart {
   status?: ('active' | 'purchased' | 'abandoned') | null;
   subtotal?: number | null;
   currency?: 'USD' | null;
+  shippingRate?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1718,6 +1719,7 @@ export interface CartsSelect<T extends boolean = true> {
   status?: T;
   subtotal?: T;
   currency?: T;
+  shippingRate?: T;
   updatedAt?: T;
   createdAt?: T;
 }
