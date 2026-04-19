@@ -52,5 +52,9 @@ export const shippingRateField: Field = {
   name: 'shippingRate',
   type: 'json',
   label: 'Shipping rate',
+  access: {
+    // read: ({ req, doc }) => req.user?.id === doc.user?.id
+    read: () => true
+  },
   validate: validateShippingRate,
 }

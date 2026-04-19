@@ -1,19 +1,20 @@
 import type { Order } from '@/payload-types'
 import type { Metadata } from 'next'
 
+import { OrderStatus } from '@/components/OrderStatus'
 import { Price } from '@/components/Price'
+import { ProductItem } from '@/components/ProductItem'
+import { AddressItem } from '@/components/addresses/AddressItem'
 import { Button } from '@/components/ui/button'
+import { ShippingRateJSON } from '@/types/shipping'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import configPromise from '@payload-config'
+import { ChevronLeftIcon } from 'lucide-react'
+import { headers as getHeaders } from 'next/headers.js'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronLeftIcon } from 'lucide-react'
-import { ProductItem } from '@/components/ProductItem'
-import { headers as getHeaders } from 'next/headers.js'
-import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { OrderStatus } from '@/components/OrderStatus'
-import { AddressItem } from '@/components/addresses/AddressItem'
 
 export const dynamic = 'force-dynamic'
 
@@ -77,6 +78,7 @@ export default async function Order({ params, searchParams }: PageProps) {
         createdAt: true,
         updatedAt: true,
         shippingAddress: true,
+        shippingRate: true
       },
     })
 
@@ -104,6 +106,11 @@ export default async function Order({ params, searchParams }: PageProps) {
   if (!order) {
     notFound()
   }
+  let shippingRate: ShippingRateJSON | undefined
+  if (order.shippingRate && typeof order.shippingRate === 'object') {
+    shippingRate = order.shippingRate as ShippingRateJSON
+  }
+
 
   return (
     <div className="">
@@ -121,12 +128,19 @@ export default async function Order({ params, searchParams }: PageProps) {
           <div></div>
         )}
 
-        <h1 className="text-sm uppercase font-mono px-2 bg-primary/10 rounded tracking-[0.07em]">
-          <span className="">{`Order #${order.id}`}</span>
-        </h1>
       </div>
 
       <div className="bg-card border rounded-lg px-6 py-4 flex flex-col gap-12">
+        <div className="flex flex-col gap-4">
+          <h1>Thanks for your order!</h1>
+          <h1 className="text-sm uppercase font-mono p-1 mr-auto bg-primary/10 rounded tracking-[0.07em]">
+            <span className="">{`Order #${order.id}`}</span>
+          </h1>
+          <p>You should receive a receipt at your email ({user?.email}). If there are any issues with your order, please
+            let us know through any of our social media platforms, or by sending an inquiry to <a href="mailto:xenu@lepi-labs.com">xenu@lepi-labs.com</a>.
+          </p>
+          <hr />
+        </div>
         <div className="flex flex-col gap-6 lg:flex-row lg:justify-between">
           <div className="">
             <p className="font-mono uppercase text-primary/50 mb-1 text-sm">Order Date</p>
@@ -180,14 +194,26 @@ export default async function Order({ params, searchParams }: PageProps) {
           </div>
         )}
 
-        {order.shippingAddress && (
-          <div>
-            <h2 className="font-mono text-primary/50 mb-4 uppercase text-sm">Shipping Address</h2>
+        <div className="flex flex-col lg:flex-row gap-6">
+          {order.shippingAddress && (
+            <div>
+              <h2 className="font-mono text-primary/50 mb-4 uppercase text-sm">Shipping Address</h2>
 
-            {/* @ts-expect-error - some kind of type hell */}
-            <AddressItem address={order.shippingAddress} hideActions />
-          </div>
-        )}
+              {/* @ts-expect-error - some kind of type hell */}
+              <AddressItem address={order.shippingAddress} hideActions />
+            </div>
+          )}
+          {shippingRate && (
+            <div>
+              <h2 className="font-mono text-primary/50 mb-4 uppercase text-sm">Shipping Details</h2>
+              <p>{shippingRate.displayName}</p>
+              <Price amount={shippingRate.cost} />
+              {shippingRate.maxDays && shippingRate.minDays && (
+                <p>Est. delivery in {shippingRate.minDays}-{shippingRate.maxDays} business days once shipped</p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
