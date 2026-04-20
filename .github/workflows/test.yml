@@ -7,8 +7,8 @@ on:
       - main
 
 jobs:
-  integration:
-    name: Integration tests
+  unit-tests:
+    name: Unit tests
     runs-on: ubuntu-latest
 
     steps:
@@ -28,5 +28,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run integration tests
+      - name: Run unit tests
         run: pnpm test:int
