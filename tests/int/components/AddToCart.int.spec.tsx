@@ -43,9 +43,15 @@ import { useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { AddToCart } from '@/components/Cart/AddToCart'
 
+import type { ReadonlyURLSearchParams } from 'next/navigation'
+
 const mockUseCart = vi.mocked(useCart)
 const mockUseSearchParams = vi.mocked(useSearchParams)
 const mockToast = vi.mocked(toast)
+
+/** Cast a plain URLSearchParams to the read-only type expected by Next.js hooks. */
+const mockSearchParams = (params?: string): ReadonlyURLSearchParams =>
+  new URLSearchParams(params) as ReadonlyURLSearchParams
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -101,7 +107,7 @@ describe('AddToCart', () => {
     vi.clearAllMocks()
     mockUseCart.mockReturnValue(defaultCartHook())
     // Default: no search params (no variant selected)
-    mockUseSearchParams.mockReturnValue(new URLSearchParams() as any)
+    mockUseSearchParams.mockReturnValue(mockSearchParams())
   })
 
   // -------------------------------------------------------------------------
@@ -127,15 +133,12 @@ describe('AddToCart', () => {
     expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
   })
 
-  it('is disabled when product inventory is null', () => {
+  it('is enabled when product inventory is null', () => {
+    // Business rule: null inventory means the stock level is unknown / not tracked.
+    // The component checks `product.inventory === 0` (strict equality), so null
+    // does NOT trigger the out-of-stock guard and the button remains enabled.
     render(<AddToCart product={makeProduct({ inventory: null })} />)
-    // null inventory → 0 comparison falls through → disabled via product.inventory === 0 branch
-    // In the component: product.inventory === 0 → true (null coerces to 0 is falsy, falls
-    // through the outer check). Let's verify the actual behaviour.
-    const btn = screen.getByRole('button', { name: /add to cart/i })
-    // null is not === 0, so the check `product.inventory === 0` is false.
-    // The item won't be in the cart either, so the final `return false` is reached.
-    expect(btn).not.toBeDisabled()
+    expect(screen.getByRole('button', { name: /add to cart/i })).not.toBeDisabled()
   })
 
   it('is disabled when the existing cart item quantity equals inventory', () => {
@@ -169,7 +172,7 @@ describe('AddToCart', () => {
       variants: { docs: [variant] },
     })
     // No ?variant= in search params
-    mockUseSearchParams.mockReturnValue(new URLSearchParams() as any)
+    mockUseSearchParams.mockReturnValue(mockSearchParams())
     render(<AddToCart product={product} />)
     expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
   })
@@ -180,7 +183,7 @@ describe('AddToCart', () => {
       enableVariants: true,
       variants: { docs: [variant] },
     })
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('variant=var-1') as any)
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-1'))
     render(<AddToCart product={product} />)
     expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
   })
@@ -191,7 +194,7 @@ describe('AddToCart', () => {
       enableVariants: true,
       variants: { docs: [variant] },
     })
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('variant=var-1') as any)
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-1'))
     render(<AddToCart product={product} />)
     expect(screen.getByRole('button', { name: /add to cart/i })).not.toBeDisabled()
   })
@@ -207,7 +210,7 @@ describe('AddToCart', () => {
       items: [{ id: 'item-1', product, variant, quantity: 2 }],
     })
     mockUseCart.mockReturnValue({ ...defaultCartHook(), cart })
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('variant=var-1') as any)
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-1'))
     render(<AddToCart product={product} />)
     expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
   })
@@ -245,7 +248,7 @@ describe('AddToCart', () => {
       enableVariants: true,
       variants: { docs: [variant] },
     })
-    mockUseSearchParams.mockReturnValue(new URLSearchParams('variant=var-xyz') as any)
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-xyz'))
     render(<AddToCart product={product} />)
     fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
     await waitFor(() => expect(addItem).toHaveBeenCalledOnce())

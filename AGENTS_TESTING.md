@@ -96,7 +96,16 @@ vi.mock('next/navigation', () => ({
 }))
 ```
 
-> **Note:** `useSearchParams` in real Next.js returns a `ReadonlyURLSearchParams`. For tests, a plain `URLSearchParams` works because the interface is the same (`.get()`, `.toString()`, etc.).
+> **Note:** `useSearchParams` in real Next.js returns a `ReadonlyURLSearchParams`. For tests, a plain `URLSearchParams` works because the interface is the same (`.get()`, `.toString()`, etc.). Cast it with a typed helper to avoid `as any`:
+
+```typescript
+import type { ReadonlyURLSearchParams } from 'next/navigation'
+
+const mockSearchParams = (params?: string): ReadonlyURLSearchParams =>
+  new URLSearchParams(params) as ReadonlyURLSearchParams
+
+// Usage:
+mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-1'))
 
 ### 3. `next/image`
 
