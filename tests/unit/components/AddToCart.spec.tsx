@@ -1,0 +1,273 @@
+/**
+ * Unit tests for the AddToCart component.
+ *
+ * This component is a good example of a client component with backend-derived
+ * state: it reads cart state from the Payload ecommerce plugin and product /
+ * variant data that comes from the Payload database.  All external dependencies
+ * are mocked so the tests run without a database connection.
+ *
+ * Dependencies mocked here:
+ *   - @payloadcms/plugin-ecommerce/client/react  (useCart hook)
+ *   - next/navigation                            (useSearchParams)
+ *   - sonner                                     (toast)
+ */
+
+import React from 'react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+
+import type { Cart, Product, Variant } from '@/payload-types'
+
+// ---------------------------------------------------------------------------
+// Mocks (hoisted by Vitest, safe to declare before the real imports)
+// ---------------------------------------------------------------------------
+
+vi.mock('@payloadcms/plugin-ecommerce/client/react', () => ({
+  useCart: vi.fn(),
+}))
+
+vi.mock('next/navigation', () => ({
+  useSearchParams: vi.fn(),
+}))
+
+vi.mock('sonner', () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}))
+
+// ---------------------------------------------------------------------------
+// Imports (after mocks so vi.mocked() resolves correctly)
+// ---------------------------------------------------------------------------
+
+import { useCart } from '@payloadcms/plugin-ecommerce/client/react'
+import { useSearchParams } from 'next/navigation'
+import { toast } from 'sonner'
+import { AddToCart } from '@/components/Cart/AddToCart'
+
+import type { ReadonlyURLSearchParams } from 'next/navigation'
+
+/** Derive the cart shape that `useCart` expects so mocks satisfy its types. */
+type CartMock = ReturnType<typeof useCart>['cart']
+
+const mockUseCart = vi.mocked(useCart)
+const mockUseSearchParams = vi.mocked(useSearchParams)
+const mockToast = vi.mocked(toast)
+
+/** Cast a plain URLSearchParams to the read-only type expected by Next.js hooks. */
+const mockSearchParams = (params?: string): ReadonlyURLSearchParams =>
+  new URLSearchParams(params) as ReadonlyURLSearchParams
+
+// ---------------------------------------------------------------------------
+// Fixtures
+// ---------------------------------------------------------------------------
+
+const makeProduct = (overrides: Partial<Product> = {}): Product => ({
+  id: 'prod-1',
+  title: 'Test Product',
+  slug: 'test-product',
+  inventory: 10,
+  enableVariants: false,
+  priceInUSD: 29.99,
+  updatedAt: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
+  ...overrides,
+})
+
+const makeVariant = (overrides: Partial<Variant> = {}): Variant => ({
+  id: 'var-1',
+  product: 'prod-1',
+  options: [],
+  inventory: 5,
+  priceInUSD: 19.99,
+  updatedAt: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
+  ...overrides,
+})
+
+const makeCart = (
+  overrides: Partial<Omit<Cart, 'items'>> & { items?: NonNullable<Cart['items']> } = {},
+): CartMock => ({
+  id: 'cart-1',
+  items: [],
+  updatedAt: new Date().toISOString(),
+  createdAt: new Date().toISOString(),
+  ...overrides,
+} as unknown as CartMock)
+
+/** Default useCart return value – override per test as needed. */
+const defaultCartHook = () => ({
+  cart: makeCart(),
+  addItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  clearCart: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  refreshCart: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  removeItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  incrementItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  decrementItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  isLoading: false,
+})
+
+// ---------------------------------------------------------------------------
+// Tests
+// ---------------------------------------------------------------------------
+
+describe('AddToCart', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockUseCart.mockReturnValue(defaultCartHook())
+    // Default: no search params (no variant selected)
+    mockUseSearchParams.mockReturnValue(mockSearchParams())
+  })
+
+  // -------------------------------------------------------------------------
+  // Rendering
+  // -------------------------------------------------------------------------
+
+  it('renders the "Add To Cart" button', () => {
+    render(<AddToCart product={makeProduct()} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeInTheDocument()
+  })
+
+  // -------------------------------------------------------------------------
+  // Disabled state – simple product (no variants)
+  // -------------------------------------------------------------------------
+
+  it('is enabled when inventory > 0 and cart is empty', () => {
+    render(<AddToCart product={makeProduct({ inventory: 5 })} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).not.toBeDisabled()
+  })
+
+  it('is disabled when product inventory is 0', () => {
+    render(<AddToCart product={makeProduct({ inventory: 0 })} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
+  })
+
+  it('is enabled when product inventory is null', () => {
+    // Business rule: null inventory means the stock level is unknown / not tracked.
+    // The component checks `product.inventory === 0` (strict equality), so null
+    // does NOT trigger the out-of-stock guard and the button remains enabled.
+    render(<AddToCart product={makeProduct({ inventory: null })} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).not.toBeDisabled()
+  })
+
+  it('is disabled when the existing cart item quantity equals inventory', () => {
+    const product = makeProduct({ inventory: 2, id: 'prod-1' })
+    const cart = makeCart({
+      items: [{ id: 'item-1', product, quantity: 2 }],
+    })
+    mockUseCart.mockReturnValue({ ...defaultCartHook(), cart })
+    render(<AddToCart product={product} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
+  })
+
+  it('is enabled when the existing cart item quantity is below inventory', () => {
+    const product = makeProduct({ inventory: 5, id: 'prod-1' })
+    const cart = makeCart({
+      items: [{ id: 'item-1', product, quantity: 3 }],
+    })
+    mockUseCart.mockReturnValue({ ...defaultCartHook(), cart })
+    render(<AddToCart product={product} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).not.toBeDisabled()
+  })
+
+  // -------------------------------------------------------------------------
+  // Disabled state – product with variants
+  // -------------------------------------------------------------------------
+
+  it('is disabled when variants are enabled but no variant is selected in the URL', () => {
+    const variant = makeVariant()
+    const product = makeProduct({
+      enableVariants: true,
+      variants: { docs: [variant] },
+    })
+    // No ?variant= in search params
+    mockUseSearchParams.mockReturnValue(mockSearchParams())
+    render(<AddToCart product={product} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
+  })
+
+  it('is disabled when selected variant has 0 inventory', () => {
+    const variant = makeVariant({ id: 'var-1', inventory: 0 })
+    const product = makeProduct({
+      enableVariants: true,
+      variants: { docs: [variant] },
+    })
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-1'))
+    render(<AddToCart product={product} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
+  })
+
+  it('is enabled when selected variant has inventory > 0', () => {
+    const variant = makeVariant({ id: 'var-1', inventory: 3 })
+    const product = makeProduct({
+      enableVariants: true,
+      variants: { docs: [variant] },
+    })
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-1'))
+    render(<AddToCart product={product} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).not.toBeDisabled()
+  })
+
+  it('is disabled when cart already has the variant at max inventory', () => {
+    const variant = makeVariant({ id: 'var-1', inventory: 2 })
+    const product = makeProduct({
+      id: 'prod-1',
+      enableVariants: true,
+      variants: { docs: [variant] },
+    })
+    const cart = makeCart({
+      items: [{ id: 'item-1', product, variant, quantity: 2 }],
+    })
+    mockUseCart.mockReturnValue({ ...defaultCartHook(), cart })
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-1'))
+    render(<AddToCart product={product} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
+  })
+
+  // -------------------------------------------------------------------------
+  // Loading state
+  // -------------------------------------------------------------------------
+
+  it('is disabled while the cart is loading', () => {
+    mockUseCart.mockReturnValue({ ...defaultCartHook(), isLoading: true })
+    render(<AddToCart product={makeProduct({ inventory: 10 })} />)
+    expect(screen.getByRole('button', { name: /add to cart/i })).toBeDisabled()
+  })
+
+  // -------------------------------------------------------------------------
+  // Click / addItem behaviour
+  // -------------------------------------------------------------------------
+
+  it('calls addItem with the correct product id when clicked', async () => {
+    const addItem = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    mockUseCart.mockReturnValue({ ...defaultCartHook(), addItem })
+    const product = makeProduct({ id: 'prod-abc', inventory: 5 })
+    render(<AddToCart product={product} />)
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+    await waitFor(() => expect(addItem).toHaveBeenCalledOnce())
+    expect(addItem).toHaveBeenCalledWith({ product: 'prod-abc', variant: undefined })
+  })
+
+  it('calls addItem with the variant id when a variant is selected', async () => {
+    const addItem = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    mockUseCart.mockReturnValue({ ...defaultCartHook(), addItem })
+    const variant = makeVariant({ id: 'var-xyz', inventory: 4 })
+    const product = makeProduct({
+      id: 'prod-abc',
+      enableVariants: true,
+      variants: { docs: [variant] },
+    })
+    mockUseSearchParams.mockReturnValue(mockSearchParams('variant=var-xyz'))
+    render(<AddToCart product={product} />)
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+    await waitFor(() => expect(addItem).toHaveBeenCalledOnce())
+    expect(addItem).toHaveBeenCalledWith({ product: 'prod-abc', variant: 'var-xyz' })
+  })
+
+  it('shows a success toast after addItem resolves', async () => {
+    const addItem = vi.fn<() => Promise<void>>().mockResolvedValue(undefined)
+    mockUseCart.mockReturnValue({ ...defaultCartHook(), addItem })
+    render(<AddToCart product={makeProduct({ inventory: 5 })} />)
+    fireEvent.click(screen.getByRole('button', { name: /add to cart/i }))
+    await waitFor(() => expect(mockToast.success).toHaveBeenCalledOnce())
+    expect(mockToast.success).toHaveBeenCalledWith('Item added to cart.')
+  })
+})

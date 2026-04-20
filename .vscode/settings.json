@@ -7,7 +7,8 @@
     "source.sortMembers": "explicit"
   },
   "chat.tools.terminal.autoApprove": {
-    "tsc": true,
-    "pnpm": true
+    "pnpm ii": true,
+    "pnpm test:unit": true,
+    "npx tsc": true
   }
 }
