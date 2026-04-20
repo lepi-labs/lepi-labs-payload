@@ -8,7 +8,7 @@ export default function getStripe(payload: BasePayload) {
     return null
   }
   return new Stripe(stripeSecretKey, {
-    apiVersion: '2025-08-27.basil',
+    apiVersion: '2022-08-01',
     appInfo: {
       name: 'Lepi Labs Payload CMS',
       url: process.env.PAYLOAD_PUBLIC_SERVER_URL

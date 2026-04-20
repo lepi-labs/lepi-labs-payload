@@ -45,6 +45,9 @@ import { AddToCart } from '@/components/Cart/AddToCart'
 
 import type { ReadonlyURLSearchParams } from 'next/navigation'
 
+/** Derive the cart shape that `useCart` expects so mocks satisfy its types. */
+type CartMock = ReturnType<typeof useCart>['cart']
+
 const mockUseCart = vi.mocked(useCart)
 const mockUseSearchParams = vi.mocked(useSearchParams)
 const mockToast = vi.mocked(toast)
@@ -80,21 +83,25 @@ const makeVariant = (overrides: Partial<Variant> = {}): Variant => ({
   ...overrides,
 })
 
-const makeCart = (overrides: Partial<Cart> = {}): Cart => ({
+const makeCart = (
+  overrides: Partial<Omit<Cart, 'items'>> & { items?: NonNullable<Cart['items']> } = {},
+): CartMock => ({
   id: 'cart-1',
   items: [],
   updatedAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
   ...overrides,
-})
+} as unknown as CartMock)
 
 /** Default useCart return value – override per test as needed. */
 const defaultCartHook = () => ({
   cart: makeCart(),
   addItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
-  removeItem: vi.fn(),
-  incrementItem: vi.fn(),
-  decrementItem: vi.fn(),
+  clearCart: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  refreshCart: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  removeItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  incrementItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+  decrementItem: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
   isLoading: false,
 })
 

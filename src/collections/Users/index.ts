@@ -25,7 +25,8 @@ export const Users: CollectionConfig = {
   auth: {
     tokenExpiration: 1209600,
     forgotPassword: {
-      generateEmailHTML: ({ req, token, user }) => {
+      generateEmailHTML: (args) => {
+        const { req, token, user } = args ?? {}
         const resetPasswordURL = `${process.env.PAYLOAD_PUBLIC_SERVER_URL}/admin/reset/${token}`
 
         return `
