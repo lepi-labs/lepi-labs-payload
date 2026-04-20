@@ -268,6 +268,17 @@ export interface Order {
     | number
     | boolean
     | null;
+  shipmentStatus?: ('not-yet-shipped' | 'in-transit' | 'delivered') | null;
+  /**
+   * Automatically set when shipment status changes to "In Transit"
+   */
+  dateShipped?: string | null;
+  /**
+   * Automatically set when shipment status changes to "Delivered"
+   */
+  dateDelivered?: string | null;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1784,6 +1795,11 @@ export interface OrdersSelect<T extends boolean = true> {
   amount?: T;
   currency?: T;
   shippingRate?: T;
+  shipmentStatus?: T;
+  dateShipped?: T;
+  dateDelivered?: T;
+  trackingNumber?: T;
+  trackingUrl?: T;
   updatedAt?: T;
   createdAt?: T;
 }

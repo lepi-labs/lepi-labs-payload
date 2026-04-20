@@ -78,7 +78,12 @@ export default async function Order({ params, searchParams }: PageProps) {
         createdAt: true,
         updatedAt: true,
         shippingAddress: true,
-        shippingRate: true
+        shippingRate: true,
+        shipmentStatus: true,
+        dateShipped: true,
+        dateDelivered: true,
+        trackingNumber: true,
+        trackingUrl: true
       },
     })
 
@@ -110,7 +115,20 @@ export default async function Order({ params, searchParams }: PageProps) {
   if (order.shippingRate && typeof order.shippingRate === 'object') {
     shippingRate = order.shippingRate as ShippingRateJSON
   }
-
+  let shipmentStatus: string | undefined
+  switch (order.shipmentStatus) {
+    case 'not-yet-shipped':
+      shipmentStatus = 'Not Yet Shipped'
+      break
+    case 'in-transit':
+      shipmentStatus = 'In Transit'
+      break
+    case 'delivered':
+      shipmentStatus = 'Delivered'
+      break
+    default:
+      shipmentStatus = order.shipmentStatus || undefined
+  }
 
   return (
     <div className="">
@@ -205,7 +223,7 @@ export default async function Order({ params, searchParams }: PageProps) {
           )}
           {shippingRate && (
             <div>
-              <h2 className="font-mono text-primary/50 mb-4 uppercase text-sm">Shipping Details</h2>
+              <h2 className="font-mono text-primary/50 mb-4 uppercase text-sm">Details</h2>
               <p>{shippingRate.displayName}</p>
               <Price amount={shippingRate.cost} />
               {shippingRate.maxDays && shippingRate.minDays && (
@@ -213,6 +231,25 @@ export default async function Order({ params, searchParams }: PageProps) {
               )}
             </div>
           )}
+          <div>
+            <h2 className="font-mono text-primary/50 mb-4 uppercase text-sm">Tracking</h2>
+            <p>Status: {shipmentStatus}</p>
+            {order.trackingNumber && order.trackingUrl && (<a target='_blank' href={order.trackingUrl}>Tracking no: {order.trackingNumber} 🔗</a>)}
+            {order.dateShipped && (
+              <p>Shipped on&nbsp;
+                <time dateTime={order.dateShipped}>
+                  {formatDateTime({ date: order.dateShipped, format: 'MMMM dd, yyyy' })}
+                </time>
+              </p>
+            )}
+            {order.dateDelivered && (
+              <p>Delivered on&nbsp;
+                <time dateTime={order.dateDelivered}>
+                  {formatDateTime({ date: order.dateDelivered, format: 'MMMM dd, yyyy' })}
+                </time>
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>
