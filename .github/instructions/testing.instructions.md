@@ -1,7 +1,6 @@
-# Unit Testing Guide for Agents
-
-This document gives agents everything they need to write unit tests in this Payload CMS / Next.js project.
-
+---
+applyTo: **/tests/**/*.spec.{ts,tsx}
+description: This file provides guidelines for writing unit tests in this Payload CMS / Next.js project.
 ---
 
 ## Testing Stack
@@ -17,7 +16,15 @@ This document gives agents everything they need to write unit tests in this Payl
 
 ## Test Categories
 
-### Unit / Integration (Vitest)
+### Unit (Vitest)
+Located in `tests/unit/`. Run with:
+```bash
+pnpm test:unit
+```
+Config: `vitest.config.mts` — runs in jsdom, picks up `**/*.spec.{ts,tsx}`.
+
+### Integration (Vitest)
+#### Not implemented (ignore)
 Located in `tests/int/`. Run with:
 ```bash
 pnpm test:int
@@ -41,7 +48,8 @@ These require the full app to be running and are out of scope for this guide.
 
 | Test type | Location | Pattern |
 |-----------|----------|---------|
-| Component unit test | `tests/int/components/` | `ComponentName.int.spec.tsx` |
+| Unit test | `tests/unit/components/` | `ComponentName.int.spec.tsx` |
+| Integration test | `tests/int/components/` | `ComponentName.int.spec.tsx` |
 | Utility unit test | `tests/int/utilities/` | `utilityName.int.spec.ts` |
 | Payload API integration | `tests/int/` | `*.int.spec.ts` |
 

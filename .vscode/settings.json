@@ -8,6 +8,7 @@
   },
   "chat.tools.terminal.autoApprove": {
     "tsc": true,
-    "pnpm": true
+    "pnpm": true,
+    "npx tsc": true
   }
 }
