@@ -374,7 +374,7 @@ export const CheckoutPage: React.FC = () => {
                 }}
                 stripe={stripe}
               >
-                <div className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8 mt-8">
                   <CheckoutForm
                     customerEmail={email}
                     billingAddress={billingAddress}
