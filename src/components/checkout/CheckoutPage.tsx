@@ -4,7 +4,6 @@ import { Media } from '@/components/Media'
 import { Message } from '@/components/Message'
 import { Price } from '@/components/Price'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/providers/Auth'
 import { useTheme } from '@/providers/Theme'
@@ -18,7 +17,6 @@ import { AddressItem } from '@/components/addresses/AddressItem'
 import { CreateAddressModal } from '@/components/addresses/CreateAddressModal'
 import { CheckoutAddresses } from '@/components/checkout/CheckoutAddresses'
 import { CheckoutForm } from '@/components/forms/CheckoutForm'
-import { FormItem } from '@/components/forms/FormItem'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Checkbox } from '@/components/ui/checkbox'
 import { cssVariables } from '@/cssVariables'
@@ -179,34 +177,36 @@ export const CheckoutPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="bg-accent dark:bg-black rounded-lg p-4 ">
-            <div>
-              <p className="mb-4">Enter your email to checkout as a guest.</p>
+          // disabling guest checkout for now
+          // <div className="bg-accent dark:bg-black rounded-lg p-4 ">
+          //   <div>
+          //     <p className="mb-4">Enter your email to checkout as a guest.</p>
 
-              <FormItem className="mb-6">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  disabled={!emailEditable}
-                  id="email"
-                  name="email"
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  type="email"
-                />
-              </FormItem>
+          //     <FormItem className="mb-6">
+          //       <Label htmlFor="email">Email Address</Label>
+          //       <Input
+          //         disabled={!emailEditable}
+          //         id="email"
+          //         name="email"
+          //         onChange={(e) => setEmail(e.target.value)}
+          //         required
+          //         type="email"
+          //       />
+          //     </FormItem>
 
-              <Button
-                disabled={!email || !emailEditable}
-                onClick={(e) => {
-                  e.preventDefault()
-                  setEmailEditable(false)
-                }}
-                variant="default"
-              >
-                Continue as guest
-              </Button>
-            </div>
-          </div>
+          //     <Button
+          //       disabled={!email || !emailEditable}
+          //       onClick={(e) => {
+          //         e.preventDefault()
+          //         setEmailEditable(false)
+          //       }}
+          //       variant="default"
+          //     >
+          //       Continue as guest
+          //     </Button>
+          //   </div>
+          // </div>
+          <></>
         )}
 
         <h2 className="font-medium text-3xl">Address</h2>

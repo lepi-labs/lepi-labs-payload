@@ -1,21 +1,28 @@
 'use server'
 
+import type { ShippingRateJSON } from '@/types/shipping'
+import getStripe from '@/utilities/getStripe'
 import config from '@payload-config'
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from "payload"
-import getStripe from '@/utilities/getStripe'
-import type { ShippingRateJSON } from '@/types/shipping'
 
 export default async function setCartShippingRate(cartId: string, shippingRateId: string): Promise<void> {
   const payload = await getPayload({ config })
   const headers = await getHeaders()
   const { user } = await payload.auth({ headers })
 
-  const cart = user?.cart?.docs?.find(c => typeof c === 'object' && c.id === cartId)
+  const cart = await payload.findByID({
+    collection: 'carts',
+    id: cartId,
+    overrideAccess: true,
+    depth: 2,
+  })
   if (!cart) {
-    throw new Error(`Cart with ID ${cartId} not found for user ${user?.id}`)
+    throw new Error(`Cart with ID ${cartId} not found`)
   }
-
+  if (typeof cart.customer === 'object' && cart.customer?.id !== user?.id) {
+    throw new Error(`User does not have permission to modify cart ${cartId}`)
+  }
   payload.logger.debug(`Setting shipping rate for cart ${cartId} to ${shippingRateId}`)
 
   // Fetch full rate details from Stripe

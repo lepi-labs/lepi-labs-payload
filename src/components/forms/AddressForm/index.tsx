@@ -1,11 +1,6 @@
 'use client'
-import React, { useCallback } from 'react'
-import { useForm } from 'react-hook-form'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAddresses } from '@payloadcms/plugin-ecommerce/client/react'
-import { defaultCountries as supportedCountries } from '@payloadcms/plugin-ecommerce/client/react'
-import { Address, Config } from '@/payload-types'
 import {
   Select,
   SelectContent,
@@ -13,12 +8,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Address, Config } from '@/payload-types'
+import { defaultCountries, useAddresses } from '@payloadcms/plugin-ecommerce/client/react'
+import React, { useCallback } from 'react'
+import { useForm } from 'react-hook-form'
 
-import { titles } from './constants'
-import { Button } from '@/components/ui/button'
-import { deepMergeSimple } from 'payload/shared'
 import { FormError } from '@/components/forms/FormError'
 import { FormItem } from '@/components/forms/FormItem'
+import { Button } from '@/components/ui/button'
+import { deepMergeSimple } from 'payload/shared'
+import { titles } from './constants'
 
 type AddressFormValues = {
   title?: string | null
@@ -43,6 +42,8 @@ type Props = {
    */
   skipSubmission?: boolean
 }
+
+const supportedCountries = defaultCountries.filter((country) => country.value === 'US')
 
 export const AddressForm: React.FC<Props> = ({
   addressID,
