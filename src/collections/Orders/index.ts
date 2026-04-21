@@ -30,28 +30,21 @@ const updateShipmentDates = ({
 
 const sendConfirmationEmailIfCreated = async ({
   doc,
-  previousDoc,
+  operation,
   req: { payload, context: _context },
 }: {
   doc: Order
-  previousDoc: Order | null
+  operation: string
   req: { payload: any; context: any }
 }) => {
-  // Only send email for new orders (when previousDoc is null)
-  if (previousDoc === null) {
+  // Only send email for new orders
+  if (operation === 'create') {
     payload.logger.info(`New order created with ID: ${doc.id} and total: ${doc.amount}`)
 
     try {
-      const customerId = doc.customer as string
-      const customer = await payload.findByID({
-        collection: 'users',
-        id: customerId,
-        overrideAccess: true,
-      }) as User
-
+      const customer = doc.customer as User
       if (!customer?.email) {
-        payload.logger.warn(`No customer email found for order ${doc.id}`)
-        console.log(customer)
+        payload.logger.error(`No customer email found for order ${doc.id}`)
         return
       }
 
@@ -64,7 +57,7 @@ const sendConfirmationEmailIfCreated = async ({
       }) as Order
 
       if (!fullOrder.items?.length) {
-        payload.logger.warn(`No items found in order ${doc.id}`)
+        payload.logger.error(`No items found in order ${doc.id}`)
         return
       }
 

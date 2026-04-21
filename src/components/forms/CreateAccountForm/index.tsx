@@ -13,6 +13,7 @@ import React, { useCallback, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 type FormData = {
+  name: string
   email: string
   password: string
   passwordConfirm: string
@@ -77,6 +78,18 @@ export const CreateAccountForm: React.FC = () => {
       <Message error={error} />
 
       <div className="flex flex-col gap-8 mb-8">
+        <FormItem>
+          <Label htmlFor="name" className="mb-2">
+            Username
+          </Label>
+          <Input
+            id="name"
+            {...register('name', { required: 'Username is required.' })}
+            type="text"
+          />
+          {errors.name && <FormError message={errors.name.message} />}
+        </FormItem>
+
         <FormItem>
           <Label htmlFor="email" className="mb-2">
             Email Address

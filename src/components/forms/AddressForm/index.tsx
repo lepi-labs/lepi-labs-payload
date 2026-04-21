@@ -16,6 +16,7 @@ import { useForm } from 'react-hook-form'
 import { FormError } from '@/components/forms/FormError'
 import { FormItem } from '@/components/forms/FormItem'
 import { Button } from '@/components/ui/button'
+import createAddress from '@/lib/createAddress'
 import { deepMergeSimple } from 'payload/shared'
 import { titles } from './constants'
 
@@ -60,7 +61,7 @@ export const AddressForm: React.FC<Props> = ({
     defaultValues: initialData,
   })
 
-  const { createAddress, updateAddress } = useAddresses()
+  const { updateAddress } = useAddresses()
 
   const onSubmit = useCallback(
     async (data: AddressFormValues) => {
@@ -70,7 +71,7 @@ export const AddressForm: React.FC<Props> = ({
         if (addressID) {
           await updateAddress(addressID, newData)
         } else {
-          await createAddress(newData)
+          await createAddress(newData as Address)
         }
       }
 

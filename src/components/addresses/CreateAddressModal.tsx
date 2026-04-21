@@ -1,6 +1,6 @@
 'use client'
+import { AddressForm } from '@/components/forms/AddressForm'
 import { Button } from '@/components/ui/button'
-import React, { useState } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -9,9 +9,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
-import { AddressForm } from '@/components/forms/AddressForm'
 import { Address } from '@/payload-types'
 import { DefaultDocumentIDType } from 'payload'
+import React, { useState } from 'react'
 
 type Props = {
   addressID?: DefaultDocumentIDType
@@ -43,6 +43,9 @@ export const CreateAddressModal: React.FC<Props> = ({
 
   const handleCallback = (data: Partial<Address>) => {
     closeModal()
+    // this is failing to call the callback for some reason. I have no idea why.
+    // but, forcing a reload will make it fetch the newly created address.
+    window.location.reload()
 
     if (callback) {
       callback(data)
