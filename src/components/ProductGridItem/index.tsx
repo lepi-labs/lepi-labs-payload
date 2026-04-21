@@ -1,10 +1,10 @@
-import type { Product, Variant } from '@/payload-types'
+import type { Product } from '@/payload-types'
 
-import Link from 'next/link'
-import React from 'react'
-import clsx from 'clsx'
 import { Media } from '@/components/Media'
 import { Price } from '@/components/Price'
+import clsx from 'clsx'
+import Link from 'next/link'
+import React from 'react'
 
 type Props = {
   product: Partial<Product>
@@ -14,6 +14,7 @@ export const ProductGridItem: React.FC<Props> = ({ product }) => {
   const { gallery, priceInUSD, title } = product
 
   let price = priceInUSD
+  let inStock = product?.inventory !== 0
 
   const variants = product.variants?.docs
 
@@ -27,6 +28,12 @@ export const ProductGridItem: React.FC<Props> = ({ product }) => {
     ) {
       price = variant.priceInUSD
     }
+    inStock = variants.every((variant) => {
+      if (variant && typeof variant === 'object' && variant.inventory !== undefined) {
+        return variant?.inventory !== 0
+      }
+      return true // If inventory is not defined, assume it's in stock
+    })
   }
 
   const image =
@@ -51,11 +58,12 @@ export const ProductGridItem: React.FC<Props> = ({ product }) => {
       <div className="font-mono text-primary/50 group-hover:text-primary/100 flex justify-between items-center mt-4">
         <div>{title}</div>
 
-        {typeof price === 'number' && (
           <div className="">
-            <Price amount={price} />
+            {inStock && typeof price === 'number' && (
+              <Price amount={price} />
+            )}
+            {!inStock && <span>Out of stock</span>}
           </div>
-        )}
       </div>
     </Link>
   )
