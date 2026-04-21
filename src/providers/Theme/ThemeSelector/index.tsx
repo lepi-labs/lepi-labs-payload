@@ -34,15 +34,22 @@ export const ThemeSelector: React.FC = () => {
   }, [])
 
   return (
-    <Select onValueChange={onThemeChange} value={value}>
-      <SelectTrigger className="w-auto bg-transparent gap-2 md:pl-3 border-none">
-        <SelectValue placeholder="Theme" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="auto">Auto</SelectItem>
-        <SelectItem value="light">Light</SelectItem>
-        <SelectItem value="dark">Dark</SelectItem>
-      </SelectContent>
-    </Select>
+    <div className="flex gap-2">
+      <div className="mt-1">
+        {value === 'auto' && <h2>💡</h2>}
+        {value === 'light' && <h2>☀</h2>}
+        {value === 'dark' && <h2>🌕</h2>}
+      </div>
+      <Select onValueChange={onThemeChange} value={value}>
+        <SelectTrigger className="w-auto bg-transparent gap-2 md:pl-3 border-none">
+          <SelectValue placeholder="Theme" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="auto">Auto</SelectItem>
+          <SelectItem value="light">Light</SelectItem>
+          <SelectItem value="dark">Dark</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
   )
 }
