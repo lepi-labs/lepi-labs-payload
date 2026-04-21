@@ -28,7 +28,8 @@ export async function SocialMediaIcons() {
   const socialLinks: Socialmedialink = await getCachedGlobal('socialmedialink', 1)()
 
   return (
-    <div className="flex items-center gap-4 w-60 mx-auto md:mx-0">
+    <div className="flex items-center gap-4 w-80 mx-auto md:mx-0">
+      <h2>Follow us!</h2>
       {socialLinks.socialMediaLinks?.map((social) => {
         switch (social.socialType) {
           case 'bluesky':
