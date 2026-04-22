@@ -49,7 +49,13 @@ export const plugins: Plugin[] = [
     enabled: s3Enabled,
     // disableLocalStorage: !s3Enabled,
     collections: {
-      media: true
+      media: {
+        disablePayloadAccessControl: true,
+        generateFileURL: async ({ filename, prefix }) => {
+          const key = prefix ? `${prefix}/${filename}` : filename
+          return `${process.env.S3_CDN_ENDPOINT}/${key}`
+        }
+      }
     },
     bucket: process.env.S3_BUCKET || '',
     config: {
