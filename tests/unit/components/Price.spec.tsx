@@ -185,8 +185,12 @@ describe('Price', () => {
   })
 
   it('renders nothing (null) when lowestAmount is 0 (falsy)', () => {
-    // lowestAmount=0 is falsy; the component skips both range and single-value
-    // branches and returns null.
+    // NOTE: This is intentionally different from `amount={0}`, which renders
+    // '$0.00' because the fixed-amount branch uses `typeof amount === 'number'`
+    // (true for 0).  The range/single-value branches use `if (lowestAmount)`,
+    // which evaluates to false for 0, so the component falls through and returns
+    // null.  This test documents the current behavior so any future change is
+    // deliberate.
     const { container } = render(<Price lowestAmount={0} highestAmount={0} />)
     expect(container.firstChild).toBeNull()
   })

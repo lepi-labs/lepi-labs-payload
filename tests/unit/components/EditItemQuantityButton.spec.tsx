@@ -46,10 +46,12 @@ const mockUseCart = vi.mocked(useCart)
 // Helpers
 // ---------------------------------------------------------------------------
 
+type CartAction = (id: string) => Promise<void>
+
 const defaultCartHook = () => ({
   isLoading: false,
-  incrementItem: vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined),
-  decrementItem: vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined),
+  incrementItem: vi.fn<CartAction>().mockResolvedValue(undefined),
+  decrementItem: vi.fn<CartAction>().mockResolvedValue(undefined),
   addItem: vi.fn(),
   cart: null,
   clearCart: vi.fn(),
@@ -216,7 +218,7 @@ describe('EditItemQuantityButton', () => {
   // -------------------------------------------------------------------------
 
   it('calls incrementItem with the item id when the "plus" button is clicked', () => {
-    const incrementItem = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined)
+    const incrementItem = vi.fn<CartAction>().mockResolvedValue(undefined)
     mockUseCart.mockReturnValue({ ...defaultCartHook(), incrementItem })
     const item = makeItem({ id: 'item-xyz', quantity: 1, product: makeProduct({ inventory: 10 }) })
     render(<EditItemQuantityButton type="plus" item={item} />)
@@ -226,7 +228,7 @@ describe('EditItemQuantityButton', () => {
   })
 
   it('calls decrementItem with the item id when the "minus" button is clicked', () => {
-    const decrementItem = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined)
+    const decrementItem = vi.fn<CartAction>().mockResolvedValue(undefined)
     mockUseCart.mockReturnValue({ ...defaultCartHook(), decrementItem })
     const item = makeItem({ id: 'item-xyz', quantity: 2 })
     render(<EditItemQuantityButton type="minus" item={item} />)
@@ -236,7 +238,7 @@ describe('EditItemQuantityButton', () => {
   })
 
   it('does not call incrementItem when the plus button is disabled (at max inventory)', () => {
-    const incrementItem = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined)
+    const incrementItem = vi.fn<CartAction>().mockResolvedValue(undefined)
     mockUseCart.mockReturnValue({ ...defaultCartHook(), incrementItem })
     const product = makeProduct({ inventory: 2 })
     const item = makeItem({ product, quantity: 2 })
@@ -246,7 +248,7 @@ describe('EditItemQuantityButton', () => {
   })
 
   it('does not call decrementItem when item has no id', () => {
-    const decrementItem = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined)
+    const decrementItem = vi.fn<CartAction>().mockResolvedValue(undefined)
     mockUseCart.mockReturnValue({ ...defaultCartHook(), decrementItem })
     render(<EditItemQuantityButton type="minus" item={makeItem({ id: undefined })} />)
     fireEvent.click(screen.getByRole('button', { name: /reduce item quantity/i }))

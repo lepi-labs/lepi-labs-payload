@@ -37,10 +37,12 @@ const mockUseCart = vi.mocked(useCart)
 // Helpers
 // ---------------------------------------------------------------------------
 
+type CartAction = (id: string) => Promise<void>
+
 /** Build the object returned by `useCart()`. */
 const defaultCartHook = () => ({
   isLoading: false,
-  removeItem: vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined),
+  removeItem: vi.fn<CartAction>().mockResolvedValue(undefined),
   addItem: vi.fn(),
   cart: null,
   clearCart: vi.fn(),
@@ -107,7 +109,7 @@ describe('DeleteItemButton', () => {
   // -------------------------------------------------------------------------
 
   it('calls removeItem with the item id when clicked', () => {
-    const removeItem = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined)
+    const removeItem = vi.fn<CartAction>().mockResolvedValue(undefined)
     mockUseCart.mockReturnValue({ ...defaultCartHook(), removeItem })
     render(<DeleteItemButton item={makeItem({ id: 'item-abc' })} />)
     fireEvent.click(screen.getByRole('button', { name: /remove cart item/i }))
@@ -116,7 +118,7 @@ describe('DeleteItemButton', () => {
   })
 
   it('does not call removeItem when the item has no id', () => {
-    const removeItem = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined)
+    const removeItem = vi.fn<CartAction>().mockResolvedValue(undefined)
     mockUseCart.mockReturnValue({ ...defaultCartHook(), removeItem })
     render(<DeleteItemButton item={makeItem({ id: undefined })} />)
     // Clicking a disabled button should not fire the handler
@@ -125,7 +127,7 @@ describe('DeleteItemButton', () => {
   })
 
   it('does not call removeItem when the cart is loading', () => {
-    const removeItem = vi.fn<(id: string) => Promise<void>>().mockResolvedValue(undefined)
+    const removeItem = vi.fn<CartAction>().mockResolvedValue(undefined)
     mockUseCart.mockReturnValue({ ...defaultCartHook(), removeItem, isLoading: true })
     render(<DeleteItemButton item={makeItem({ id: 'item-1' })} />)
     fireEvent.click(screen.getByRole('button', { name: /remove cart item/i }))
