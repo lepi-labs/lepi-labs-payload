@@ -36,9 +36,9 @@ export const ThemeSelector: React.FC = () => {
   return (
     <div className="flex gap-2">
       <div className="mt-1">
-        {value === 'auto' && <h2>💡</h2>}
-        {value === 'light' && <h2>☀</h2>}
-        {value === 'dark' && <h2>🌕</h2>}
+        {value === 'auto' && <span role="img" aria-label="Automatic theme">💡</span>}
+        {value === 'light' && <span role="img" aria-label="Light theme">☀</span>}
+        {value === 'dark' && <span role="img" aria-label="Dark theme">🌕</span>}
       </div>
       <Select onValueChange={onThemeChange} value={value}>
         <SelectTrigger className="w-auto bg-transparent gap-2 md:pl-3 border-none">
