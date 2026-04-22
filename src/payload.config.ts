@@ -90,6 +90,7 @@ export default buildConfig({
   cors: {
     origins: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''],
   },
+  csrf: [ process.env.PAYLOAD_PUBLIC_SERVER_URL || '' ],
   endpoints: [],
   globals: [Header, Footer, SocialMediaLinks],
   plugins,
