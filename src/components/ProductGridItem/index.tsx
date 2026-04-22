@@ -14,7 +14,7 @@ export const ProductGridItem: React.FC<Props> = ({ product }) => {
   const { gallery, priceInUSD, title } = product
 
   let price = priceInUSD
-  let inStock = product?.inventory !== 0
+  let inStock = false
 
   const variants = product.variants?.docs
 
@@ -28,12 +28,9 @@ export const ProductGridItem: React.FC<Props> = ({ product }) => {
     ) {
       price = variant.priceInUSD
     }
-    inStock = variants.every((variant) => {
-      if (variant && typeof variant === 'object' && variant.inventory !== undefined) {
-        return variant?.inventory !== 0
-      }
-      return true // If inventory is not defined, assume it's in stock
-    })
+    inStock = variants.some((variant) => typeof variant === 'string' || Boolean(variant.inventory))
+  } else {
+    inStock = Boolean(product.inventory)
   }
 
   const image =
