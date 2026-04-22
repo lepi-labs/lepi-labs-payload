@@ -206,7 +206,11 @@ export const CheckoutPage: React.FC = () => {
           //     </Button>
           //   </div>
           // </div>
-          <></>
+          <div className="bg-accent dark:bg-black rounded-lg p-4 ">
+            <div>
+              <p className="mb-4">Guest checkout is currently unavailable, sorry! Please log in or create an account to proceed.</p>
+            </div>
+          </div>
         )}
 
         <h2 className="font-medium text-3xl">Address</h2>

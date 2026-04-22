@@ -90,6 +90,7 @@ export default buildConfig({
   cors: {
     origins: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''],
   },
+  csrf: [ process.env.PAYLOAD_PUBLIC_SERVER_URL || (() => { throw new Error('PAYLOAD_PUBLIC_SERVER_URL must be defined in order to enable CSRF protection') })() ],
   endpoints: [],
   globals: [Header, Footer, SocialMediaLinks],
   plugins,

@@ -64,7 +64,7 @@ export function HeaderClient({ header }: Props) {
               label="Account"
               url="/account"
               size="clear"
-              className={cn('relative navLink', {
+              className={cn('hidden md:block relative navLink', {
                 active:
                   pathname.includes('/account')
               })}

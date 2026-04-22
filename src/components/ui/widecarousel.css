@@ -8,6 +8,33 @@ button.slick-arrow::before {
   color: black;
 }
 
+.slick-prev {
+  left: -40px;
+}
+.slick-next {
+  right: -40px;
+}
+.slick-prev,
+.slick-next {
+  height: 40px;
+  width: 40px;
+}
+.slick-prev::before,
+.slick-next::before {
+  font-size: 40px;
+}
+/* hide buttons on mobile */
+@media screen and (max-width: 768px) {
+  .slick-prev,
+  .slick-next,
+  .slick-prev::before,
+  .slick-next::before {
+    height: 0;
+    width: 0;
+    display: none;
+  }
+}
+
 [data-theme="dark"]  {
  .slick-dots li button::before,
  button.slick-arrow::before {
