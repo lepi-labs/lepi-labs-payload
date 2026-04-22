@@ -40,7 +40,11 @@ export const StockIndicator: React.FC<Props> = ({ product }) => {
   }, [product.enableVariants, selectedVariant, product.inventory])
 
   if (product.enableVariants && !selectedVariant) {
-    return null
+    return (
+      <div className="uppercase font-mono text-sm font-medium text-gray-500">
+        <p>Select a variant</p>
+      </div>
+    )
   }
 
   return (
