@@ -29,7 +29,7 @@ export async function SocialMediaIcons() {
 
   return (
     <div className="flex items-center gap-4 w-80 mx-auto md:mx-0">
-      <h2>Follow us!</h2>
+      <span className="text-lg">Follow us!</span>
       {socialLinks.socialMediaLinks?.map((social) => {
         switch (social.socialType) {
           case 'bluesky':
