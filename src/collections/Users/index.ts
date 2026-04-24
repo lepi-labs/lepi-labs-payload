@@ -46,6 +46,18 @@ export const Users: CollectionConfig = {
       }
     }
   },
+  hooks: {
+    afterLogin: [
+      async ({ req }) => {
+        req.payload.logger.info({ "user.id": req.user?.id }, 'User logged in')
+      }
+    ],
+    afterLogout: [
+      async ({ req }) => {
+        req.payload.logger.info({ "user.id": req.user?.id }, 'User logged out')
+      }
+    ],
+  },
   fields: [
     {
       name: 'name',

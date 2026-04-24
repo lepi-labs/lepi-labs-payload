@@ -93,6 +93,14 @@ export default buildConfig({
   csrf: [ process.env.PAYLOAD_PUBLIC_SERVER_URL || (() => { throw new Error('PAYLOAD_PUBLIC_SERVER_URL must be defined in order to enable CSRF protection') })() ],
   endpoints: [],
   globals: [Header, Footer, SocialMediaLinks],
+  logger: {
+    options: {
+      level: process.env.LOG_LEVEL || 'info',
+      transport: {
+        target: process.env.NODE_ENV === 'production' ? 'pino/file' : 'pino-pretty',
+      }
+    }
+  },
   plugins,
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
