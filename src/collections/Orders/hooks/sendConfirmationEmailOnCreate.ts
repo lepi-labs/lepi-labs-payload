@@ -76,7 +76,7 @@ export default async function sendConfirmationEmailIfCreated({
 
       payload.logger.info({ "order.id": doc.id, "user.id": customer.id }, `Confirmation email sent for order`)
     } catch (_ignoreError) {
-      payload.logger.error(`Failed to send confirmation email for order ${doc.id}: ${_ignoreError}`)
+      payload.logger.error({ err: _ignoreError, "order.id": doc.id }, `Failed to send confirmation email for order`)
     }
   }
 }
