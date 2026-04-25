@@ -6,6 +6,7 @@ import { adminOrSelf } from '@/access/adminOrSelf'
 import { publicAccess } from '@/access/publicAccess'
 import { checkRole } from '@/access/utilities'
 
+import sendDiscordWebhook from '@/utilities/discordWebhook'
 import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
 
 export const Users: CollectionConfig = {
@@ -50,11 +51,13 @@ export const Users: CollectionConfig = {
     afterLogin: [
       async ({ req }) => {
         req.payload.logger.info({ "user.id": req.user?.id }, 'User logged in')
+        await sendDiscordWebhook(`User logged in (user.id: ${req.user?.id})`)
       }
     ],
     afterLogout: [
       async ({ req }) => {
         req.payload.logger.info({ "user.id": req.user?.id }, 'User logged out')
+        await sendDiscordWebhook(`User logged out (user.id: ${req.user?.id})`)
       }
     ],
   },
