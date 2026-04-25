@@ -64,6 +64,8 @@ export async function SocialMediaIcons() {
                   </a>
                 </div>
             )
+          default:
+            return null
         }
       })}
     </div>
