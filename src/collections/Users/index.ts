@@ -60,6 +60,19 @@ export const Users: CollectionConfig = {
         await sendDiscordWebhook(`User logged out (user.id: ${req.user?.id})`)
       }
     ],
+    afterChange: [
+      async ({ doc, req, operation }) => {
+        if (operation === 'create') {
+          req.payload.logger.info({ "user.id": doc.id }, 'User account created')
+          await sendDiscordWebhook(`A new account was created (user.id: ${doc.id})`)
+        }
+      }
+    ],
+    afterDelete: [
+      async ({ id, req }) => {
+        req.payload.logger.info({ "user.id": id }, 'User account deleted')
+      }
+    ]
   },
   fields: [
     {
