@@ -35,7 +35,7 @@ export async function SocialMediaIcons() {
           case 'bluesky':
             return (
                 <div key={social.id} className="grow socialsvg">
-                  <a href={social.url} target="_blank">
+                  <a href={social.url} target="_blank" rel="noopener noreferrer">
                   {blueskyLogo}
                   </a>
                 </div>
@@ -43,7 +43,7 @@ export async function SocialMediaIcons() {
           case 'telegram':
             return (
                 <div key={social.id} className="grow socialsvg">
-                  <a href={social.url} target="_blank">
+                  <a href={social.url} target="_blank" rel="noopener noreferrer">
                   {telegramLogo}
                   </a>
                 </div>
@@ -51,7 +51,7 @@ export async function SocialMediaIcons() {
           case 'github':
             return (
                 <div key={social.id} className="grow socialsvg">
-                  <a href={social.url} target="_blank">
+                  <a href={social.url} target="_blank" rel="noopener noreferrer">
                   {githubLogo}
                   </a>
                 </div>
@@ -59,11 +59,13 @@ export async function SocialMediaIcons() {
           case 'discord':
             return (
                 <div key={social.id} className="grow socialsvg">
-                  <a href={social.url} target="_blank">
+                  <a href={social.url} target="_blank" rel="noopener noreferrer">
                   {discordLogo}
                   </a>
                 </div>
             )
+          default:
+            return null
         }
       })}
     </div>
