@@ -221,7 +221,7 @@ export const makeProduct = (overrides: Partial<Product> = {}): Product => ({
   slug: 'test-product',
   inventory: 10,
   enableVariants: false,
-  priceInUSD: 29.99,
+  priceInUSD: 2999,
   updatedAt: new Date().toISOString(),
   createdAt: new Date().toISOString(),
   ...overrides,
@@ -292,6 +292,8 @@ beforeEach(() => {
 6. **Image optimisation warnings** – mock `next/image` to suppress warnings from Next.js internals.
 
 7. **Payload types not updated** – if a type is missing, run `pnpm generate:types` to regenerate `payload-types.ts`.
+
+8. **Prices are whole numbers (cents)** – `priceInUSD` on `Product`, `Variant`, and `Cart` is stored as an integer number of cents, **not** a decimal dollar amount. Use `2999` to represent $29.99, not `29.99`.
 
 ---
 
