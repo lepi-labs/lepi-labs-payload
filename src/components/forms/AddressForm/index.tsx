@@ -21,7 +21,7 @@ import createAddress from '@/lib/createAddress'
 import { deepMergeSimple } from 'payload/shared'
 import { titles } from './constants'
 
-type AddressFormValues = {
+export type AddressFormValues = {
   title?: string | null
   firstName?: string | null
   lastName?: string | null
