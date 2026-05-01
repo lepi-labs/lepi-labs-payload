@@ -25,6 +25,7 @@ export const usStateCodes: string[] = [
   'CA',
   'CO',
   'CT',
+  'DC',
   'DE',
   'FL',
   'GA',

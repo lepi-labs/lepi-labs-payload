@@ -1,5 +1,5 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // Mocks
 
@@ -7,18 +7,18 @@ vi.mock('@payloadcms/plugin-ecommerce/client/react', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@payloadcms/plugin-ecommerce/client/react')>()
   return {
     ...actual,
-    useAddresses: vi.fn()
+    useAddresses: vi.fn(),
   }
 })
 
 vi.mock('@/lib/createAddress', () => ({
-  default: vi.fn()
+  default: vi.fn(),
 }))
 
 // Imports
-import { AddressForm } from "@/components/forms/AddressForm";
-import createAddress from "@/lib/createAddress";
-import { useAddresses } from "@payloadcms/plugin-ecommerce/client/react";
+import { AddressForm } from '@/components/forms/AddressForm'
+import createAddress from '@/lib/createAddress'
+import { useAddresses } from '@payloadcms/plugin-ecommerce/client/react'
 
 const mockUseAddresses = vi.mocked(useAddresses)
 const mockCreateAddress = vi.mocked(createAddress)
@@ -28,15 +28,11 @@ const mockCreateAddress = vi.mocked(createAddress)
 // Tests
 
 describe('AddressForm', () => {
-    mockUseAddresses.mockReturnValue({
-      updateAddress: vi.fn()
-    } as unknown as ReturnType<typeof useAddresses>)
-
   beforeEach(() => {
     vi.clearAllMocks()
 
     mockUseAddresses.mockReturnValue({
-      updateAddress: vi.fn()
+      updateAddress: vi.fn(),
     } as unknown as ReturnType<typeof useAddresses>)
   })
 
@@ -57,11 +53,11 @@ describe('AddressForm', () => {
     fireEvent.change(cityInput, { target: { value: 'Mobotropolis' } })
     fireEvent.change(zipInput, { target: { value: '12345' } })
     fireEvent.click(countryCombo)
-    const option = screen.getByRole('option', { name: /united states/i } )
-    fireEvent.click(option)
+    const countryOption = screen.getByRole('option', { name: /united states/i })
+    fireEvent.click(countryOption)
     fireEvent.click(stateCombo)
-    const optionn = screen.getByRole('option', { name: 'AL' } )
-    fireEvent.click(optionn)
+    const stateOption = screen.getByRole('option', { name: 'AL' })
+    fireEvent.click(stateOption)
     await act(async () => {
       fireEvent.click(submitButton)
     })
@@ -93,7 +89,7 @@ describe('AddressForm', () => {
     fireEvent.change(cityInput, { target: { value: 'Mobotropolis' } })
     fireEvent.change(zipInput, { target: { value: '12345' } })
     fireEvent.click(countryCombo)
-    const option = screen.getByRole('option', { name: /united states/i } )
+    const option = screen.getByRole('option', { name: /united states/i })
     fireEvent.click(option)
     await act(async () => {
       fireEvent.click(submitButton)
@@ -117,7 +113,7 @@ describe('AddressForm', () => {
     fireEvent.change(cityInput, { target: { value: 'Mobotropolis' } })
     fireEvent.change(zipInput, { target: { value: '12345' } })
     fireEvent.click(stateCombo)
-    const option = screen.getByRole('option', { name: 'AL' } )
+    const option = screen.getByRole('option', { name: 'AL' })
     fireEvent.click(option)
     await act(async () => {
       fireEvent.click(submitButton)

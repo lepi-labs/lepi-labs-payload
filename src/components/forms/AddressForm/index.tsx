@@ -182,6 +182,7 @@ export const AddressForm: React.FC<Props> = ({
             }}
             required
             defaultValue={initialData?.state || ''}
+            autoComplete='address-level1'
           >
             <SelectTrigger id="state" className="w-full">
               <SelectValue placeholder="State" />
