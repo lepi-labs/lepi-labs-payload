@@ -16,11 +16,12 @@ import { useForm } from 'react-hook-form'
 import { FormError } from '@/components/forms/FormError'
 import { FormItem } from '@/components/forms/FormItem'
 import { Button } from '@/components/ui/button'
+import { usStateCodes } from '@/lib/constants'
 import createAddress from '@/lib/createAddress'
 import { deepMergeSimple } from 'payload/shared'
 import { titles } from './constants'
 
-type AddressFormValues = {
+export type AddressFormValues = {
   title?: string | null
   firstName?: string | null
   lastName?: string | null
@@ -170,8 +171,32 @@ export const AddressForm: React.FC<Props> = ({
         </FormItem>
 
         <FormItem>
-          <Label htmlFor="state">State</Label>
-          <Input id="state" autoComplete="address-level1" {...register('state')} />
+          <Label htmlFor="state">State*</Label>
+
+          <Select
+            {...register('state', {
+              required: 'State is required.',
+            })}
+            onValueChange={(value) => {
+              setValue('state', value, { shouldValidate: true })
+            }}
+            required
+            defaultValue={initialData?.state || ''}
+            autoComplete='address-level1'
+          >
+            <SelectTrigger id="state" className="w-full">
+              <SelectValue placeholder="State" />
+            </SelectTrigger>
+            <SelectContent>
+              {usStateCodes.map((stateCode) => {
+                return (
+                  <SelectItem key={stateCode} value={stateCode}>
+                    {stateCode}
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
           {errors.state && <FormError message={errors.state.message} />}
         </FormItem>
 
