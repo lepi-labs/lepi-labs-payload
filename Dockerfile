@@ -10,11 +10,10 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 ENV NODE_ENV=production
+ENV CI=true
 # Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* pnpm-workspace.yaml* ./
 RUN corepack enable pnpm
-RUN pnpm i --frozen-lockfile || true
-RUN pnpm approve-builds --all
 RUN pnpm i --frozen-lockfile
 
 
@@ -30,6 +29,7 @@ RUN test -d public || mkdir public
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
+ENV CI=true
 RUN corepack enable pnpm && pnpm run build --experimental-build-mode compile
 
 # Production image, copy all the files and run next
