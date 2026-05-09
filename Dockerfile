@@ -12,7 +12,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN corepack enable pnpm && pnpm i --frozen-lockfile
+RUN corepack enable pnpm
+RUN pnpm i --frozen-lockfile || true
+RUN pnpm approve-builds --all
+RUN pnpm i --frozen-lockfile
 
 
 # Rebuild the source code only when needed
