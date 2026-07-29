@@ -8,6 +8,7 @@ import { checkRole } from '@/access/utilities'
 
 import sendDiscordWebhook from '@/utilities/discordWebhook'
 import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
+import { requireHcaptcha } from './hooks/requireHcaptcha'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -48,6 +49,7 @@ export const Users: CollectionConfig = {
     }
   },
   hooks: {
+    beforeOperation: [requireHcaptcha],
     afterLogin: [
       async ({ req }) => {
         req.payload.logger.info({ "user.id": req.user?.id }, 'User logged in')
