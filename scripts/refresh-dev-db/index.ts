@@ -6,7 +6,7 @@ import { MongoClient } from 'mongodb'
 
 import { buildConfig } from './config.js'
 import { anonymizeAll } from './anonymize.js'
-import { copyBucket } from './s3-copy.js'
+import { copyBucket, downloadBucketToLocal } from './s3-copy.js'
 import { rewriteMediaUrls } from './media-urls.js'
 import {
   checkPrerequisites,
@@ -32,12 +32,18 @@ function printPlan(config: Config): void {
   console.log('=== Dev DB Refresh Plan ===\n')
   console.log(`Dump archive:  ${config.dumpZipPath}`)
   console.log(`Dev DB:        ${config.devDb.uri}`)
+
   if (config.prodS3 && config.devS3) {
     console.log(`Prod S3:       ${config.prodS3.endpoint}/${config.prodS3.bucket}`)
     console.log(`Dev S3:        ${config.devS3.endpoint}/${config.devS3.bucket}`)
+  } else if (config.prodS3 && config.localMedia) {
+    console.log(`Prod S3:       ${config.prodS3.endpoint}/${config.prodS3.bucket}`)
+    console.log(`Local media:   ${config.localMedia.dir}`)
+    console.log(`URL prefix:    ${config.localMedia.urlPrefix}`)
   } else {
     console.log('S3:            (not configured — S3 steps will be skipped)')
   }
+
   console.log('\nSteps:')
   console.log('  1. Check prerequisites (mongodump, mongorestore, unzip)')
   if (!config.flags.noBackupDev) {
@@ -54,9 +60,13 @@ function printPlan(config: Config): void {
   console.log('     - Forms: anonymize email configs')
   console.log('     - Carts: null secrets')
   console.log('     - Drop: payload-locked-documents, payload-preferences')
+
   if (config.prodS3 && config.devS3 && !config.flags.skipS3) {
     console.log('  6. Copy S3 objects from prod bucket to dev bucket')
     console.log('  7. Rewrite media URLs to point to dev S3 endpoint')
+  } else if (config.prodS3 && config.localMedia && !config.flags.skipS3) {
+    console.log('  6. Download S3 objects from prod bucket to local media dir')
+    console.log('  7. Rewrite media URLs to point to local prefix')
   }
   console.log('  8. Cleanup temp files')
   console.log('')
@@ -84,8 +94,14 @@ function printStats(stats: RefreshStats): void {
     console.log(`  Collections dropped: ${stats.anonymize.collectionsDropped.join(', ')}`)
   }
 
-  console.log('\nS3:')
-  console.log(`  Objects copied:  ${stats.s3.objectsCopied}`)
+  console.log('\nMedia:')
+  if (stats.s3.mode === 'copy') {
+    console.log(`  Objects copied:   ${stats.s3.objectsCopied}`)
+  } else if (stats.s3.mode === 'download') {
+    console.log(`  Objects downloaded: ${stats.s3.objectsCopied}`)
+  } else {
+    console.log(`  Objects: (skipped)`)
+  }
   if (stats.s3.objectsFailed > 0) {
     console.log(`  Objects failed:  ${stats.s3.objectsFailed}`)
   }
@@ -157,21 +173,24 @@ async function main(): Promise<void> {
     const ctx = { db, stats, verbose: config.flags.verbose, emailMap: new Map<string, string>() }
     await anonymizeAll(ctx)
 
-    if (!config.flags.skipS3 && config.prodS3 && config.devS3) {
+    if (config.flags.skipS3) {
+      console.log('\n[6-7] Skipping media steps (--skip-s3)')
+    } else if (config.prodS3 && config.devS3) {
       console.log('\n[6] Copying S3 objects from prod to dev bucket ...')
       await copyBucket(config, stats)
 
       console.log('\n[7] Rewriting media URLs ...')
       await rewriteMediaUrls(db, config, stats)
-    } else if (config.flags.skipS3) {
-      console.log('\n[6-7] Skipping S3 steps (--skip-s3)')
+    } else if (config.prodS3 && config.localMedia) {
+      console.log('\n[6] Downloading S3 objects from prod bucket to local dir ...')
+      await downloadBucketToLocal(config, stats)
+
+      console.log('\n[7] Rewriting media URLs ...')
+      await rewriteMediaUrls(db, config, stats)
     } else {
-      console.log('\n[6-7] Skipping S3 steps (S3 not configured)')
+      console.log('\n[6-7] Skipping media steps (S3 not configured)')
       if (!config.prodS3) {
-        console.log('  Hint: Set PROD_S3_* vars in .env.refresh to enable S3 copy.')
-      }
-      if (!config.devS3) {
-        console.log('  Hint: Set S3_* vars in .env to enable media URL rewriting.')
+        console.log('  Hint: Set PROD_S3_* vars in .env.refresh to enable media sync.')
       }
     }
 

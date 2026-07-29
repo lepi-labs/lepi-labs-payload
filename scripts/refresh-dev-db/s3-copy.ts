@@ -6,6 +6,9 @@ import {
   PutObjectCommand,
 } from '@aws-sdk/client-s3'
 import type { Readable } from 'node:stream'
+import { createWriteStream } from 'node:fs'
+import { promises as fs } from 'node:fs'
+import path from 'node:path'
 import type { Config, RefreshStats } from './types.js'
 
 const CONCURRENCY = 10
@@ -130,6 +133,7 @@ export async function copyBucket(
     const result = await runWithConcurrency(keys, CONCURRENCY, async (key) => {
       await copyObjectSameEndpoint(prodClient, config.prodS3!.bucket, config.devS3!.bucket, key)
     })
+    stats.s3.mode = 'copy'
     stats.s3.objectsCopied = result.succeeded
     stats.s3.objectsFailed = result.failed
   } else {
@@ -144,6 +148,7 @@ export async function copyBucket(
         key,
       )
     })
+    stats.s3.mode = 'copy'
     stats.s3.objectsCopied = result.succeeded
     stats.s3.objectsFailed = result.failed
   }
@@ -151,5 +156,64 @@ export async function copyBucket(
   console.log(`  Copied ${stats.s3.objectsCopied} objects.`)
   if (stats.s3.objectsFailed > 0) {
     console.log(`  Failed to copy ${stats.s3.objectsFailed} objects.`)
+  }
+}
+
+async function streamToFile(stream: Readable, filePath: string): Promise<void> {
+  await fs.mkdir(path.dirname(filePath), { recursive: true })
+  return new Promise((resolve, reject) => {
+    const fileStream = createWriteStream(filePath)
+    stream.pipe(fileStream)
+    fileStream.on('finish', () => {
+      fileStream.close()
+      resolve()
+    })
+    fileStream.on('error', (err) => {
+      reject(err)
+    })
+    stream.on('error', (err) => {
+      fileStream.destroy()
+      reject(err)
+    })
+  })
+}
+
+export async function downloadBucketToLocal(
+  config: Config,
+  stats: RefreshStats,
+): Promise<void> {
+  if (!config.prodS3 || !config.localMedia) {
+    console.log('  S3 or local media config missing, skipping download.')
+    stats.s3.objectsSkipped++
+    return
+  }
+
+  console.log(`  Listing objects in prod bucket: ${config.prodS3.bucket}`)
+  const prodClient = createS3Client(config.prodS3)
+  const keys = await listAllObjects(prodClient, config.prodS3.bucket)
+  console.log(`  Found ${keys.length} objects to download.`)
+
+  if (keys.length === 0) {
+    console.log('  No objects to download.')
+    stats.s3.mode = 'download'
+    return
+  }
+
+  console.log(`  Downloading to ${config.localMedia.dir} with ${CONCURRENCY} concurrent workers.`)
+  const result = await runWithConcurrency(keys, CONCURRENCY, async (key) => {
+    const getResponse = await prodClient.send(
+      new GetObjectCommand({ Bucket: config.prodS3!.bucket, Key: key }),
+    )
+    const filePath = path.join(config.localMedia!.dir, key)
+    await streamToFile(getResponse.Body as Readable, filePath)
+  })
+
+  stats.s3.mode = 'download'
+  stats.s3.objectsCopied = result.succeeded
+  stats.s3.objectsFailed = result.failed
+
+  console.log(`  Downloaded ${stats.s3.objectsCopied} objects.`)
+  if (stats.s3.objectsFailed > 0) {
+    console.log(`  Failed to download ${stats.s3.objectsFailed} objects.`)
   }
 }

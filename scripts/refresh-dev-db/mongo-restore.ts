@@ -20,7 +20,6 @@ async function checkBinary(name: string): Promise<void> {
 export async function checkPrerequisites(): Promise<void> {
   await checkBinary('mongorestore')
   await checkBinary('mongodump')
-  await checkBinary('unzip')
 }
 
 export async function backupDevDb(config: Config, stats: RefreshStats): Promise<string> {

@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Config, S3Config, CliFlags } from './types.js'
+import type { Config, S3Config, LocalMediaConfig, CliFlags } from './types.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -86,6 +86,17 @@ function buildS3Config(
   return { bucket, endpoint: normalizedEndpoint, accessKeyId, secretAccessKey, region, publicUrlBase }
 }
 
+function buildLocalMediaConfig(
+  env: Record<string, string | undefined>,
+  projectRoot: string,
+): LocalMediaConfig {
+  const dir = env.MEDIA_LOCAL_DIR
+    ? path.resolve(env.MEDIA_LOCAL_DIR)
+    : path.resolve(projectRoot, 'public', 'media')
+  const urlPrefix = (env.MEDIA_LOCAL_URL_PREFIX || '/api/media/file').replace(/\/+$/, '')
+  return { dir, urlPrefix }
+}
+
 export async function buildConfig(): Promise<Config> {
   const argv = process.argv.slice(2)
   const dumpZipPath = parsePositionalArg(argv)
@@ -113,6 +124,11 @@ export async function buildConfig(): Promise<Config> {
   const devS3 = buildS3Config('S3', mergedEnv)
   const prodS3 = buildS3Config('PROD_S3', mergedEnv)
 
+  // Local download mode is enabled when prod S3 is configured but dev S3 is not.
+  // In that case, prod bucket objects are downloaded to a local directory and
+  // media URLs are rewritten to point to the local prefix.
+  const localMedia = prodS3 && !devS3 ? buildLocalMediaConfig(mergedEnv, projectRoot) : null
+
   const resolvedDumpPath = path.resolve(process.cwd(), dumpZipPath)
 
   return {
@@ -120,6 +136,7 @@ export async function buildConfig(): Promise<Config> {
     devDb,
     devS3,
     prodS3,
+    localMedia,
     flags,
   }
 }

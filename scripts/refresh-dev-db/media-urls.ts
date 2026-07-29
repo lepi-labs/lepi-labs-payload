@@ -18,13 +18,13 @@ export async function rewriteMediaUrls(
   config: Config,
   stats: RefreshStats,
 ): Promise<void> {
-  if (!config.prodS3 || !config.devS3) {
-    console.log('  S3 config missing, skipping media URL rewrite.')
+  if (!config.prodS3 || (!config.devS3 && !config.localMedia)) {
+    console.log('  S3/local media config missing, skipping media URL rewrite.')
     return
   }
 
   const prodBase = config.prodS3.publicUrlBase
-  const devBase = config.devS3.publicUrlBase
+  const devBase = config.devS3 ? config.devS3.publicUrlBase : config.localMedia!.urlPrefix
 
   console.log(`  Rewriting media URLs:`)
   console.log(`    ${prodBase}  →  ${devBase}`)
