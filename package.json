@@ -24,6 +24,7 @@
     "email:dev": "email dev -d src/emails -p 3001"
   },
   "dependencies": {
+    "@hcaptcha/react-hcaptcha": "^2.0.2",
     "@payloadcms/admin-bar": "^3.80.0",
     "@payloadcms/db-mongodb": "^3.80.0",
     "@payloadcms/email-nodemailer": "^3.80.0",

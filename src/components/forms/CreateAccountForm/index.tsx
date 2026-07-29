@@ -1,5 +1,6 @@
 'use client'
 
+import { Captcha, type CaptchaRef } from '@/components/Captcha'
 import { FormError } from '@/components/forms/FormError'
 import { FormItem } from '@/components/forms/FormItem'
 import { Message } from '@/components/Message'
@@ -17,25 +18,32 @@ type FormData = {
   email: string
   password: string
   passwordConfirm: string
+  hcaptchaToken: string
 }
 
 export const CreateAccountForm: React.FC = () => {
+  const siteKey = process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY
   const searchParams = useSearchParams()
   const allParams = searchParams.toString() ? `?${searchParams.toString()}` : ''
   const { login } = useAuth()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
+  const captchaRef = useRef<CaptchaRef>(null)
 
   const {
     formState: { errors },
     handleSubmit,
     register,
+    setValue,
     watch,
   } = useForm<FormData>()
 
   const password = useRef({})
   password.current = watch('password', '')
+
+  const hcaptchaToken = watch('hcaptchaToken')
+  const captchaRequired = Boolean(siteKey)
 
   const onSubmit = useCallback(
     async (data: FormData) => {
@@ -50,6 +58,8 @@ export const CreateAccountForm: React.FC = () => {
       if (!response.ok) {
         const message = response.statusText || 'There was an error creating the account.'
         setError(message)
+        captchaRef.current?.resetCaptcha()
+        setValue('hcaptchaToken', '')
         return
       }
 
@@ -69,7 +79,7 @@ export const CreateAccountForm: React.FC = () => {
         setError('There was an error with the credentials provided. Please try again.')
       }
     },
-    [login, router, searchParams],
+    [login, router, searchParams, setValue],
   )
 
   return (
@@ -128,8 +138,24 @@ export const CreateAccountForm: React.FC = () => {
           />
           {errors.passwordConfirm && <FormError message={errors.passwordConfirm.message} />}
         </FormItem>
+
+        {captchaRequired && (
+          <FormItem>
+            <Captcha
+              ref={captchaRef}
+              onVerify={(token) => setValue('hcaptchaToken', token, { shouldValidate: true })}
+              onExpire={() => setValue('hcaptchaToken', '')}
+              onError={() => setValue('hcaptchaToken', '')}
+            />
+            {errors.hcaptchaToken && <FormError message={errors.hcaptchaToken.message} />}
+          </FormItem>
+        )}
       </div>
-      <Button disabled={loading} type="submit" variant="default">
+      <Button
+        disabled={loading || (captchaRequired && !hcaptchaToken)}
+        type="submit"
+        variant="default"
+      >
         {loading ? 'Processing' : 'Create Account'}
       </Button>
 
