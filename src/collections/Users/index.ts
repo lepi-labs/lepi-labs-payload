@@ -6,6 +6,8 @@ import { adminOrSelf } from '@/access/adminOrSelf'
 import { publicAccess } from '@/access/publicAccess'
 import { checkRole } from '@/access/utilities'
 
+import { createUserEndpoint } from '@/endpoints/createUser'
+import { forgotPasswordEndpoint } from '@/endpoints/forgotPassword'
 import sendDiscordWebhook from '@/utilities/discordWebhook'
 import { ensureFirstUserIsAdmin } from './hooks/ensureFirstUserIsAdmin'
 
@@ -23,6 +25,7 @@ export const Users: CollectionConfig = {
     defaultColumns: ['name', 'email', 'roles'],
     useAsTitle: 'name',
   },
+  endpoints: [createUserEndpoint, forgotPasswordEndpoint],
   auth: {
     tokenExpiration: 1209600,
     forgotPassword: {

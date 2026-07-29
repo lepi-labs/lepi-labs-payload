@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useAuth } from '@/providers/Auth'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useRef, useState } from 'react'
@@ -26,6 +27,8 @@ export const CreateAccountForm: React.FC = () => {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<null | string>(null)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const captchaRef = useRef<HCaptcha>(null)
 
   const {
     formState: { errors },
@@ -39,16 +42,28 @@ export const CreateAccountForm: React.FC = () => {
 
   const onSubmit = useCallback(
     async (data: FormData) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users`, {
-        body: JSON.stringify(data),
+      if (!captchaToken) {
+        setError('Please complete the captcha verification.')
+        return
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/create`, {
+        body: JSON.stringify({ ...data, hcaptchaToken: captchaToken }),
         headers: {
           'Content-Type': 'application/json',
         },
         method: 'POST',
       })
 
+      captchaRef.current?.resetCaptcha()
+      setCaptchaToken(null)
+
       if (!response.ok) {
-        const message = response.statusText || 'There was an error creating the account.'
+        const json = await response.json().catch(() => null)
+        const message =
+          (json as { message?: string } | null)?.message ||
+          response.statusText ||
+          'There was an error creating the account.'
         setError(message)
         return
       }
@@ -69,7 +84,7 @@ export const CreateAccountForm: React.FC = () => {
         setError('There was an error with the credentials provided. Please try again.')
       }
     },
-    [login, router, searchParams],
+    [captchaToken, login, router, searchParams],
   )
 
   return (
@@ -128,6 +143,12 @@ export const CreateAccountForm: React.FC = () => {
           />
           {errors.passwordConfirm && <FormError message={errors.passwordConfirm.message} />}
         </FormItem>
+
+        <HCaptcha
+          sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? '10000000-ffff-ffff-ffff-000000000001'}
+          onVerify={setCaptchaToken}
+          ref={captchaRef}
+        />
       </div>
       <Button disabled={loading} type="submit" variant="default">
         {loading ? 'Processing' : 'Create Account'}

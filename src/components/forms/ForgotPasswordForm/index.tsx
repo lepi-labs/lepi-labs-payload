@@ -6,7 +6,8 @@ import { Message } from '@/components/Message'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import React, { Fragment, useCallback, useState } from 'react'
+import HCaptcha from '@hcaptcha/react-hcaptcha'
+import React, { Fragment, useCallback, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 type FormData = {
@@ -16,6 +17,8 @@ type FormData = {
 export const ForgotPasswordForm: React.FC = () => {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null)
+  const captchaRef = useRef<HCaptcha>(null)
 
   const {
     formState: { errors },
@@ -23,27 +26,38 @@ export const ForgotPasswordForm: React.FC = () => {
     register,
   } = useForm<FormData>()
 
-  const onSubmit = useCallback(async (data: FormData) => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/forgot-password`,
-      {
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        method: 'POST',
-      },
-    )
+  const onSubmit = useCallback(
+    async (data: FormData) => {
+      if (!captchaToken) {
+        setError('Please complete the captcha verification.')
+        return
+      }
 
-    if (response.ok) {
-      setSuccess(true)
-      setError('')
-    } else {
-      setError(
-        'There was a problem while attempting to send you a password reset email. Please try again.',
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/users/forgot-password-captcha`,
+        {
+          body: JSON.stringify({ ...data, hcaptchaToken: captchaToken }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+        },
       )
-    }
-  }, [])
+
+      captchaRef.current?.resetCaptcha()
+      setCaptchaToken(null)
+
+      if (response.ok) {
+        setSuccess(true)
+        setError('')
+      } else {
+        setError(
+          'There was a problem while attempting to send you a password reset email. Please try again.',
+        )
+      }
+    },
+    [captchaToken],
+  )
 
   return (
     <Fragment>
@@ -70,6 +84,14 @@ export const ForgotPasswordForm: React.FC = () => {
               />
               {errors.email && <FormError message={errors.email.message} />}
             </FormItem>
+
+            <div className="mb-8">
+              <HCaptcha
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? '10000000-ffff-ffff-ffff-000000000001'}
+                onVerify={setCaptchaToken}
+                ref={captchaRef}
+              />
+            </div>
 
             <Button type="submit" variant="default">
               Forgot Password
