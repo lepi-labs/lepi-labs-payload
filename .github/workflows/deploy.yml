@@ -10,7 +10,7 @@ jobs:
     name: Run unit tests
     runs-on: ubuntu-latest
     permissions:
-      contents: "read"
+      contents: 'read'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -30,7 +30,7 @@ jobs:
         run: pnpm test:unit
   buildimage:
     name: Build and push Docker image
-    needs: "unit-tests"
+    needs: 'unit-tests'
     environment: production
     runs-on: ubuntu-latest
     permissions:
@@ -82,6 +82,10 @@ jobs:
           # Umami analytics
           UMAMI_WEBSITE_ID=${{ vars.UMAMI_WEBSITE_ID }}
 
+          # hCaptcha
+          NEXT_PUBLIC_HCAPTCHA_SITE_KEY=${{ vars.HCAPTCHA_SITE_KEY }}
+          HCAPTCHA_SECRET=${{ secrets.HCAPTCHA_SECRET }}
+
           # Discord webhook
           DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_URL }}
 
@@ -92,4 +96,4 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
-          tags: "${{ secrets.DOCKER_REGISTRY_URL }}/lepi-labs-payload:main"
+          tags: '${{ secrets.DOCKER_REGISTRY_URL }}/lepi-labs-payload:main'
