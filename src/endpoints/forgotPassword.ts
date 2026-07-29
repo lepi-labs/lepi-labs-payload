@@ -29,11 +29,15 @@ export const forgotPasswordEndpoint: Endpoint = {
       throw new APIError('Email is required.', 400)
     }
 
-    await req.payload.forgotPassword({
-      collection: 'users',
-      data: { email },
-      req,
-    })
+    try {
+      await req.payload.forgotPassword({
+        collection: 'users',
+        data: { email },
+        req,
+      })
+    } catch (_) {
+      // Swallow errors to avoid leaking whether the email address exists
+    }
 
     return Response.json({ message: 'Password reset email sent.' })
   },

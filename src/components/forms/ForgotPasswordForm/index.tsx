@@ -87,7 +87,7 @@ export const ForgotPasswordForm: React.FC = () => {
 
             <div className="mb-8">
               <HCaptcha
-                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? '10000000-ffff-ffff-ffff-000000000001'}
+                sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ''}
                 onVerify={setCaptchaToken}
                 ref={captchaRef}
               />

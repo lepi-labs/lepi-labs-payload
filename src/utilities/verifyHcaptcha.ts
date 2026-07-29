@@ -2,12 +2,15 @@
  * Verifies an hCaptcha token against the hCaptcha siteverify API.
  *
  * Returns true if the token is valid, false otherwise.
- * When HCAPTCHA_SECRET_KEY is not set, verification is skipped (useful for local dev).
+ * Verification is skipped in non-production environments when HCAPTCHA_SECRET_KEY is not set.
  */
 export async function verifyHcaptcha(token: string): Promise<boolean> {
   const secret = process.env.HCAPTCHA_SECRET_KEY
 
   if (!secret) {
+    if (process.env.NODE_ENV === 'production') {
+      return false
+    }
     return true
   }
 

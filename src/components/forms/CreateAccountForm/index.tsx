@@ -145,7 +145,7 @@ export const CreateAccountForm: React.FC = () => {
         </FormItem>
 
         <HCaptcha
-          sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? '10000000-ffff-ffff-ffff-000000000001'}
+          sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY ?? ''}
           onVerify={setCaptchaToken}
           ref={captchaRef}
         />
