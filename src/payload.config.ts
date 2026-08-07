@@ -16,12 +16,12 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from '@/collections/Categories'
+import { CTFs } from '@/collections/CTFs'
 import { Media } from '@/collections/Media'
 import { Pages } from '@/collections/Pages'
 import { Users } from '@/collections/Users'
 import { Footer } from '@/globals/Footer'
 import { Header } from '@/globals/Header'
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { SocialMediaLinks } from './globals/SocialMediaLink'
 import { plugins } from './plugins'
 
@@ -36,7 +36,7 @@ export default buildConfig({
     },
     user: Users.slug,
   },
-  collections: [Users, Pages, Categories, Media],
+  collections: [Categories, CTFs, Media, Pages, Users],
   db: mongooseAdapter({
     url: process.env.DATABASE_URL || '',
   }),
@@ -75,22 +75,29 @@ export default buildConfig({
       ]
     },
   }),
-  email: nodemailerAdapter({
-    defaultFromAddress: 'noreply@lepi-labs.com',
-    defaultFromName: 'Lepi Labs',
-    transportOptions: {
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    }
-  }),
+  // email: nodemailerAdapter({
+  //   defaultFromAddress: 'noreply@lepi-labs.com',
+  //   defaultFromName: 'Lepi Labs',
+  //   transportOptions: {
+  //     host: process.env.SMTP_HOST,
+  //     port: process.env.SMTP_PORT,
+  //     auth: {
+  //       user: process.env.SMTP_USER,
+  //       pass: process.env.SMTP_PASS,
+  //     },
+  //   },
+  // }),
   cors: {
     origins: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''],
   },
-  csrf: [ process.env.PAYLOAD_PUBLIC_SERVER_URL || (() => { throw new Error('PAYLOAD_PUBLIC_SERVER_URL must be defined in order to enable CSRF protection') })() ],
+  csrf: [
+    process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+      (() => {
+        throw new Error(
+          'PAYLOAD_PUBLIC_SERVER_URL must be defined in order to enable CSRF protection',
+        )
+      })(),
+  ],
   endpoints: [],
   globals: [Header, Footer, SocialMediaLinks],
   logger: {
@@ -98,8 +105,8 @@ export default buildConfig({
       level: process.env.LOG_LEVEL || 'info',
       transport: {
         target: process.env.NODE_ENV === 'production' ? 'pino/file' : 'pino-pretty',
-      }
-    }
+      },
+    },
   },
   plugins,
   secret: process.env.PAYLOAD_SECRET || '',

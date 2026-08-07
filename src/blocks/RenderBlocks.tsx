@@ -11,6 +11,7 @@ import React, { Fragment } from 'react'
 import { WideCarouselBlock } from './WideCarousel/Component'
 
 import type { Page } from '../payload-types'
+import { CtfBlock } from './CTF/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -21,7 +22,8 @@ const blockComponents = {
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
   threeItemGrid: ThreeItemGridBlock,
-  widecarousel: WideCarouselBlock
+  widecarousel: WideCarouselBlock,
+  ctf: CtfBlock,
 }
 
 export const RenderBlocks: React.FC<{
