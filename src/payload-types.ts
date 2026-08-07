@@ -304,6 +304,7 @@ export interface Page {
   layout: (
     | CallToActionBlock
     | ContentBlock
+    | CtfBlock
     | MediaBlock
     | ArchiveBlock
     | CarouselBlock
@@ -416,6 +417,16 @@ export interface ContentBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtfBlock".
+ */
+export interface CtfBlock {
+  ctf?: (string | null) | Ctf;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'ctf';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1339,6 +1350,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        ctf?: T | CtfBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         carousel?: T | CarouselBlockSelect<T>;
@@ -1407,6 +1419,15 @@ export interface ContentBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CtfBlock_select".
+ */
+export interface CtfBlockSelect<T extends boolean = true> {
+  ctf?: T;
   id?: T;
   blockName?: T;
 }
