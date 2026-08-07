@@ -19,9 +19,11 @@ export function CTF(props: CTFBlockProps) {
     throw new Error('Failed to load CTF.')
   }
   const providedCtf = ctf as Ctf
-  let usernames = providedCtf.flags.flatMap((f) => f.claims?.map((c) => c.username)).sort()
+  let usernames = providedCtf.flags
+    .flatMap((f) => f.claims?.map((c) => c.username) ?? [])
+    .sort()
   if (username) {
-    usernames = [username].concat(usernames as string[])
+    usernames = [username].concat(usernames)
   }
 
   const flagSubmit = async (f: string) => {

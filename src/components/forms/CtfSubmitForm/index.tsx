@@ -31,7 +31,7 @@ export const CtfSubmitForm: React.FC<CtfSubmitFormProps> = (props) => {
   const onSubmit = useCallback(
     async (data: FormData) => {
       try {
-        submitCb(data.flag)
+        await submitCb(data.flag)
       } catch (_) {
         setError('There was an error submitting the flag :(')
       }

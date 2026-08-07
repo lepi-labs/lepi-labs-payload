@@ -39,7 +39,8 @@ export default async function claimFlag(
     return null
   }
 
-  foundFlag.claims?.push({
+  foundFlag.claims = foundFlag.claims ?? []
+  foundFlag.claims.push({
     username: username,
     date: new Date().toDateString(),
   })

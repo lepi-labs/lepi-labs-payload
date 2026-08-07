@@ -31,7 +31,7 @@ export const CtfUsernameForm: React.FC<CtfUsernameFormProps> = (props) => {
   const onSubmit = useCallback(
     async (data: FormData) => {
       try {
-        submitCb(data.username)
+        await submitCb(data.username)
       } catch (_) {
         setError('There was an error submitting the flag :(')
       }
@@ -48,7 +48,17 @@ export const CtfUsernameForm: React.FC<CtfUsernameFormProps> = (props) => {
           <Input
             id="username"
             type="text"
-            {...register('username', { required: 'Username is required.' })}
+            {...register('username', {
+              required: 'Username is required.',
+              minLength: {
+                value: 3,
+                message: 'Username must be at least 3 characters.',
+              },
+              maxLength: {
+                value: 64,
+                message: 'Username must be at most 64 characters.',
+              },
+            })}
           />
           {errors.username && <FormError message={errors.username.message} />}
         </FormItem>
