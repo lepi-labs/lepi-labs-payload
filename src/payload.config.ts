@@ -22,6 +22,7 @@ import { Pages } from '@/collections/Pages'
 import { Users } from '@/collections/Users'
 import { Footer } from '@/globals/Footer'
 import { Header } from '@/globals/Header'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { SocialMediaLinks } from './globals/SocialMediaLink'
 import { plugins } from './plugins'
 
