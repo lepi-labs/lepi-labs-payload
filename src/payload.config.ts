@@ -75,18 +75,18 @@ export default buildConfig({
       ]
     },
   }),
-  // email: nodemailerAdapter({
-  //   defaultFromAddress: 'noreply@lepi-labs.com',
-  //   defaultFromName: 'Lepi Labs',
-  //   transportOptions: {
-  //     host: process.env.SMTP_HOST,
-  //     port: process.env.SMTP_PORT,
-  //     auth: {
-  //       user: process.env.SMTP_USER,
-  //       pass: process.env.SMTP_PASS,
-  //     },
-  //   },
-  // }),
+  email: nodemailerAdapter({
+    defaultFromAddress: 'noreply@lepi-labs.com',
+    defaultFromName: 'Lepi Labs',
+    transportOptions: {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    },
+  }),
   cors: {
     origins: [process.env.PAYLOAD_PUBLIC_SERVER_URL || ''],
   },
