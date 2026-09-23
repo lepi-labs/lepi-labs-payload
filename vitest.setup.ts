@@ -5,7 +5,7 @@ import 'dotenv/config'
 
 // Extend Vitest's expect with @testing-library/jest-dom DOM matchers
 // (e.g. toBeInTheDocument, toBeDisabled, toHaveTextContent, …)
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 
 // Automatically clean up React renders after each test so DOM nodes
 // do not leak between test cases.
