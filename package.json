@@ -53,7 +53,7 @@
     "dotenv": "^8.6.0",
     "embla-carousel-auto-scroll": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
-    "geist": "^1.8.1",
+    "geist": "^1.8.2",
     "graphql": "^16.14.2",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.477.0",
